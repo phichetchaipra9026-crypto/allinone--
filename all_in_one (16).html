@@ -1,0 +1,3468 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALL IN ONE การเกษตร - สหกรณ์ดิจิทัล อ.นาตาล</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Sarabun', 'TH Sarabun New', Tahoma, sans-serif !important;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #f4f7f5;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+    button, a, input, select, textarea {
+      touch-action: manipulation;
+    }
+    .page-section {
+      display: none;
+    }
+    .page-section.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-overlay {
+      display: none;
+      pointer-events: none;
+    }
+    .modal-overlay.open {
+      display: flex;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- =====================================================================
+       แถบเมนูด้านบน (Header & Navigation)
+       ===================================================================== -->
+  <header class="bg-white border-b-2 border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3">
+      <!-- แถวบน: โลโก้ + ปุ่มลงชื่อเข้าใช้ขนาดกะทัดรัดมุมขวาบน -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-700 to-green-600 text-white flex items-center justify-center text-2xl shadow-sm shrink-0">
+            🌱
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-extrabold text-emerald-900 leading-tight">ALL IN ONE การเกษตร</h1>
+              <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">สหกรณ์ดิจิทัล อ.นาตาล</span>
+            </div>
+            <p class="text-xs text-slate-500 hidden sm:block">ศูนย์กลางข้อมูลราคา คัดเกรด ซื้อ-ขายผลผลิต และจ้างงานการเกษตรครบวงจร</p>
+          </div>
+        </div>
+
+        <!-- มุมขวาบน: ปุ่มลงชื่อเข้าใช้ขนาดเล็ก -->
+        <div id="auth-header-box" class="flex items-center gap-2 shrink-0">
+          <button type="button" onclick="window.toggleAuthModal(true, 'login')" class="bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5">
+            <span>🔐</span>
+            <span>ลงชื่อเข้าใช้</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- แถวล่าง: เมนูนำทางแยก 5 หน้าอิสระ -->
+      <nav class="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <button type="button" id="nav-farmer" onclick="window.setRole('farmer')" class="nav-pill bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition shrink-0">
+          📊 เช็กราคาพืช 5 ชนิด
+        </button>
+        <button type="button" id="nav-calculator" onclick="window.setRole('calculator')" class="nav-pill px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-200 transition shrink-0">
+          🧮 เครื่องคำนวณราคา
+        </button>
+        <button type="button" id="nav-buyer" onclick="window.setRole('buyer')" class="nav-pill px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-200 transition shrink-0">
+          🏪 ตลาดซื้อ-ขายจริง
+        </button>
+        <button type="button" id="nav-contractor" onclick="window.setRole('contractor')" class="nav-pill px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-200 transition shrink-0">
+          🚜 บริการเกษตร
+        </button>
+        <button type="button" id="nav-progress" onclick="window.setRole('progress')" class="nav-pill px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-200 transition inline-flex items-center gap-1.5 shrink-0">
+          <span>📋 รายงานความคืบหน้า</span>
+          <span id="poster-progress-badge" class="hidden bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       แบนเนอร์ส่วนหัวของแต่ละหน้า
+       ===================================================================== -->
+  <section class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-green-700 text-white border-b-4 border-amber-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h2 id="banner-title" class="text-xl sm:text-2xl font-extrabold mb-1">📊 เช็กราคารับซื้อพืชเศรษฐกิจ 5 ชนิด อำเภอนาตาล</h2>
+        <p id="banner-desc" class="text-xs sm:text-sm text-emerald-100">ตรวจสอบราคากลางสหกรณ์และราคาซื้อ-ขายจริงในพื้นที่ เพื่อวางแผนจำหน่ายผลผลิตอย่างคุ้มค่า</p>
+      </div>
+      <div class="bg-white/15 border border-white/25 rounded-2xl px-4 py-2.5 text-center shrink-0">
+        <div class="text-[11px] text-emerald-100">ศูนย์ประสานงานสหกรณ์ อ.นาตาล</div>
+        <div class="text-sm font-extrabold text-amber-300">นายพิเชษฐ์ชัย ประสมพลอย</div>
+        <a href="tel:0624181699" onclick="window.triggerPhoneCall('0624181699')" class="text-xs font-bold underline text-white">📞 062-418-1699</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       เนื้อหาหลัก แยกแสดงผลทีละหน้า
+       ===================================================================== -->
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-7 flex-1">
+
+    <!-- -------------------------------------------------------------------
+         หน้าที่ 1: เช็กราคาพืชเศรษฐกิจ 5 ชนิด (page-farmer)
+         ------------------------------------------------------------------- -->
+    <section id="page-farmer" class="page-section active space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-1.5">
+            ✅ ตอบโจทย์วัตถุประสงค์ข้อที่ 1 และ 2 (เช็กราคา & วางแผนจำหน่าย)
+          </span>
+          <h3 class="text-lg sm:text-xl font-extrabold text-emerald-950">ราคารับซื้อกลางและราคาตลาดสหกรณ์ อ.นาตาล (5 พืชเศรษฐกิจ)</h3>
+          <p class="text-xs sm:text-sm text-slate-500">อัปเดตข้อมูลราคาเปรียบเทียบ ช่วยให้เกษตรกรตัดสินใจก่อนนำผลผลิตออกจำหน่าย</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="window.setRole('calculator')" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xs transition">
+            🧮 ไปหน้าคำนวณราคา
+          </button>
+          <button type="button" onclick="window.setRole('buyer')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xs transition">
+            🏪 ไปตลาดซื้อ-ขาย
+          </button>
+        </div>
+      </div>
+
+      <!-- การ์ดพืชเศรษฐกิจ 5 ชนิด -->
+      <div id="crop-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+
+      <!-- ตารางเปรียบเทียบราคาขั้นต่ำสหกรณ์ vs ราคาเปิดขาย -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <h4 class="text-base font-extrabold text-slate-900 mb-3">📋 ตารางสรุปเกณฑ์ราคาสหกรณ์การเกษตร อำเภอนาตาล</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-emerald-50 text-emerald-950 border-b border-emerald-200">
+                <th class="p-3 font-extrabold">ชนิดผลผลิต</th>
+                <th class="p-3 font-extrabold">เกณฑ์คุณภาพมาตรฐาน</th>
+                <th class="p-3 font-extrabold text-right">ราคาขั้นต่ำสหกรณ์</th>
+                <th class="p-3 font-extrabold text-right">ราคากลางรับซื้อ</th>
+                <th class="p-3 font-extrabold text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="crop-summary-tbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- -------------------------------------------------------------------
+         หน้าที่ 2: เครื่องคำนวณราคา (page-calculator)
+         ------------------------------------------------------------------- -->
+    <section id="page-calculator" class="page-section space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <span class="inline-block bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full mb-1.5">
+          🧮 เครื่องมือคำนวณรายได้และเปรียบเทียบราคาซื้อ-ขาย
+        </span>
+        <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">คำนวณราคาคัดเกรดผลผลิต & เปรียบเทียบราคาซื้อขายจริง</h3>
+        <p class="text-xs sm:text-sm text-slate-500">คำนวณมูลค่าผลผลิตตามเกรดความชื้น/เปอร์เซ็นต์แป้ง และเปรียบเทียบส่วนต่างกับราคาขั้นต่ำสหกรณ์</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- กล่อง A: คำนวณราคาคัดเกรด & บรรจุภัณฑ์ -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <h4 class="text-base font-extrabold text-emerald-900">1. คำนวณราคาตามเกรดคุณภาพและบรรจุภัณฑ์</h4>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">เลือกชนิดพืชเศรษฐกิจ (5 ชนิดหลัก)</label>
+            <select id="calc-crop-select" onchange="window.calculateGradingRevenue()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ระดับการคัดเกรดคุณภาพ</label>
+            <select id="calc-grade-select" onchange="window.calculateGradingRevenue()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800">
+              <option value="1.05">เกรด A พรีเมียม (สะอาดพิเศษ / ความชื้นและเชื้อแป้งตามเกณฑ์ +5%)</option>
+              <option value="1.00" selected>เกรดมาตรฐานสหกรณ์ (ได้ราคากลาง 100%)</option>
+              <option value="0.92">เกรดคละ / ไม่คัดแยก (ถูกหักความชื้นหรือสิ่งเจือปน -8%)</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">รูปแบบบรรจุภัณฑ์</label>
+              <select id="calc-pack-select" onchange="window.calculateGradingRevenue()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-800">
+                <option value="250">กระสอบสหกรณ์คัดเกรด (+250 บ./ตัน)</option>
+                <option value="0" selected>เทกอง / ขนส่งปกติ (+0 บ./ตัน)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">ปริมาณผลผลิต (ตัน)</label>
+              <input type="number" id="calc-weight-input" value="10" min="0.1" step="0.5" oninput="window.calculateGradingRevenue()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800">
+            </div>
+          </div>
+
+          <div class="bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-4 space-y-1">
+            <div class="text-xs font-bold text-emerald-800">💰 รายได้สุทธิโดยประมาณหลังคัดเกรด</div>
+            <div id="calc-grading-total" class="text-2xl sm:text-3xl font-extrabold text-emerald-900">158,000 บาท</div>
+            <div id="calc-grading-sub" class="text-xs text-emerald-700">ราคาสุทธิ 15,800 บาท/ตัน × 10 ตัน</div>
+            <div class="pt-2 text-[11px] text-slate-600">
+              💡 ต้องการบริการวัดความชื้น/คัดเกรด ติดต่อ <strong>นางสาววิชญาดา มิ่งมูล (ไอซ์ <a href="tel:0831230474" onclick="window.triggerPhoneCall('0831230474')" class="text-emerald-800 underline font-bold">083-123-0474</a>)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- กล่อง B: คำนวณเปรียบเทียบ 3 ราคาในการซื้อขายจริง -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <h4 class="text-base font-extrabold text-amber-900">2. เปรียบเทียบราคาซื้อ-ขาย (ขั้นต่ำสหกรณ์ vs ราคาเปิด vs ราคาซื้อขายจริง)</h4>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ดึงข้อมูลจากประกาศในตลาดซื้อ-ขาย</label>
+            <select id="trade-listing-select" onchange="window.onSelectTradeListing()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800"></select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">จำนวนที่ซื้อ-ขายจริง (ตัน)</label>
+              <input type="number" id="trade-tons-input" value="10" min="0.1" step="0.5" oninput="window.calculateTradeComparison()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">ราคาตอนที่ซื้อขายจริง (บ./ตัน)</label>
+              <input type="number" id="trade-actual-input" value="15650" min="100" step="50" oninput="window.calculateTradeComparison()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-slate-100 border border-slate-200 rounded-xl p-2.5">
+              <div class="text-[11px] font-bold text-slate-500">ราคาขั้นต่ำสหกรณ์</div>
+              <div id="comp-coop-min" class="text-sm sm:text-base font-extrabold text-slate-800">15,100 บ.</div>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5">
+              <div class="text-[11px] font-bold text-emerald-700">ราคาที่ผู้ขายเปิด</div>
+              <div id="comp-seller-open" class="text-sm sm:text-base font-extrabold text-emerald-800">15,800 บ.</div>
+            </div>
+            <div class="bg-amber-50 border border-amber-300 rounded-xl p-2.5">
+              <div class="text-[11px] font-bold text-amber-800">ราคาซื้อขายจริง</div>
+              <div id="comp-actual-price" class="text-sm sm:text-base font-extrabold text-amber-900">15,650 บ.</div>
+            </div>
+          </div>
+
+          <div id="trade-comparison-result" class="bg-amber-50/70 border border-amber-300 rounded-2xl p-4 space-y-1 text-xs text-slate-800"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- -------------------------------------------------------------------
+         หน้าที่ 3: ตลาดซื้อ-ขายจริง & ต่อรองราคา (page-buyer)
+         ------------------------------------------------------------------- -->
+    <section id="page-buyer" class="page-section space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-1.5">
+            ✅ ตอบโจทย์วัตถุประสงค์ข้อที่ 3 (ต่อรองราคาเป็นธรรม & รวมกลุ่มขาย)
+          </span>
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">กระดานซื้อ-ขายผลผลิต & ต่อรองราคาออนไลน์</h3>
+          <p class="text-xs sm:text-sm text-slate-500">แสดงราคาขั้นต่ำสหกรณ์ ราคาที่ผู้ขายเปิด และราคาซื้อขายจริง ประสานงานโดย นายพิเชษฐ์ชัย ประสมพลอย (<a href="tel:0624181699" onclick="window.triggerPhoneCall('0624181699')" class="text-emerald-800 font-bold underline">062-418-1699</a>)</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="window.openChatHubModal('market')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition inline-flex items-center gap-1.5">
+            <span>📬 กล่องแชทซื้อ-ขาย</span>
+            <span id="market-hub-badge" class="hidden bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+          </button>
+          <button type="button" onclick="window.togglePostModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xs transition">
+            + โพสต์ขายผลผลิต
+          </button>
+        </div>
+      </div>
+
+      <!-- ปุ่มกรองตามชนิดพืช -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-bold text-slate-600">กรองตามพืช:</span>
+        <button type="button" onclick="window.filterMarket('all', this)" class="mkt-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full">ทั้งหมด</button>
+        <button type="button" onclick="window.filterMarket('ข้าว', this)" class="mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🌾 ข้าว</button>
+        <button type="button" onclick="window.filterMarket('อ้อย', this)" class="mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🎋 อ้อย</button>
+        <button type="button" onclick="window.filterMarket('ยางพารา', this)" class="mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🌳 ยางพารา</button>
+        <button type="button" onclick="window.filterMarket('ปาล์ม', this)" class="mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🌴 ปาล์ม</button>
+        <button type="button" onclick="window.filterMarket('มันสำปะหลัง', this)" class="mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🥔 มันสำปะหลัง</button>
+      </div>
+
+      <div id="market-listings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- -------------------------------------------------------------------
+         หน้าที่ 4: บริการเกษตร & จองคิวเลือกวัน (page-contractor)
+         ------------------------------------------------------------------- -->
+    <section id="page-contractor" class="page-section space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-1.5">
+            ✅ ตอบโจทย์วัตถุประสงค์ข้อที่ 5 (ศูนย์กลางบริการรถไถ รถขนส่ง & แรงงานเกษตร)
+          </span>
+          <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">ศูนย์รวมบริการทางการเกษตร อำเภอนาตาล</h3>
+          <p class="text-xs sm:text-sm text-slate-500">เลือกวันจองคิวว่าจ้าง แชทสอบถามคิวว่าง หรือโทรติดต่อผู้ให้บริการในพื้นที่โดยตรง</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="window.openChatHubModal('service')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition inline-flex items-center gap-1.5">
+            <span>📬 กล่องแชทบริการ</span>
+            <span id="service-hub-badge" class="hidden bg-rose-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+          </button>
+          <button type="button" onclick="window.toggleAddServiceModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-xs transition">
+            + เพิ่มบริการเกษตร
+          </button>
+        </div>
+      </div>
+
+      <!-- ปุ่มกรองหมวดหมู่บริการ -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-bold text-slate-600">หมวดหมู่บริการ:</span>
+        <button type="button" onclick="window.filterLabor('all', this)" class="svc-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full">ทั้งหมด</button>
+        <button type="button" onclick="window.filterLabor('รถไถ', this)" class="svc-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🚜 รถไถ/พรวนดิน</button>
+        <button type="button" onclick="window.filterLabor('รถเกี่ยว', this)" class="svc-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🌾 รถเกี่ยว/เก็บเกี่ยว</button>
+        <button type="button" onclick="window.filterLabor('ขนส่ง', this)" class="svc-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">🚚 รถขนส่งผลผลิต</button>
+        <button type="button" onclick="window.filterLabor('แรงงาน', this)" class="svc-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50">👷 แรงงานเกษตร</button>
+      </div>
+
+      <div id="labor-providers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- -------------------------------------------------------------------
+         หน้าที่ 5: รายงานความคืบหน้า & แจ้งเตือนคนโพสต์ (page-progress)
+         ------------------------------------------------------------------- -->
+    <section id="page-progress" class="page-section space-y-5">
+      <!-- สรุปตัวเลขความคืบหน้า -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+          <div class="text-xs font-bold text-slate-500">รายการดำเนินการทั้งหมด</div>
+          <div id="stat-total" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">0 รายการ</div>
+        </div>
+        <div class="bg-amber-50 rounded-2xl border border-amber-200 p-4 shadow-xs">
+          <div class="text-xs font-bold text-amber-800">รอตอบรับ / กำลังเจรจา (25%)</div>
+          <div id="stat-waiting" class="text-xl sm:text-2xl font-extrabold text-amber-900 mt-1">0 รายการ</div>
+        </div>
+        <div class="bg-blue-50 rounded-2xl border border-blue-200 p-4 shadow-xs">
+          <div class="text-xs font-bold text-blue-800">กำลังดำเนินการ / ขนส่ง (50%-75%)</div>
+          <div id="stat-active" class="text-xl sm:text-2xl font-extrabold text-blue-900 mt-1">0 รายการ</div>
+        </div>
+        <div class="bg-emerald-50 rounded-2xl border border-emerald-200 p-4 shadow-xs">
+          <div class="text-xs font-bold text-emerald-800">เสร็จสิ้นสมบูรณ์ (100%)</div>
+          <div id="stat-done" class="text-xl sm:text-2xl font-extrabold text-emerald-900 mt-1">0 รายการ</div>
+        </div>
+      </div>
+
+      <!-- กล่องรายการรออนุมัติ (แสดงเฉพาะเมื่อแอดมินเข้าสู่ระบบ) -->
+      <div id="admin-pending-section" class="hidden bg-amber-50 border-2 border-amber-400 rounded-2xl p-5 space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <span class="bg-amber-500 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">🛡️ โหมดผู้ดูแลระบบ</span>
+            <h4 class="text-base font-extrabold text-amber-950 mt-1">รายการคำขอเพิ่มข้อมูลใหม่ (รออนุมัติขึ้นเว็บไซต์)</h4>
+          </div>
+        </div>
+        <div id="pending-approvals-list" class="space-y-2.5"></div>
+      </div>
+
+      <!-- แถบแจ้งเตือนความคืบหน้าสำหรับคนโพสต์ -->
+      <div id="poster-notification-banner" class="bg-sky-50 border-2 border-sky-300 rounded-2xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
+        <div class="space-y-1">
+          <div class="font-extrabold text-sky-950 text-sm flex flex-wrap items-center gap-2">
+            <span>🔒 รายงานความคืบหน้าส่วนตัว (เห็นเฉพาะคนโพสต์และคนติดต่อเท่านั้น)</span>
+            <span id="poster-banner-badge" class="hidden bg-rose-600 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+              รายการใหม่ <span id="poster-banner-count">0</span> รายการ
+            </span>
+          </div>
+          <div id="privacy-scope-desc" class="text-sky-800">
+            ระบบแยกสิทธิ์การมองเห็น: คุณจะเห็นเฉพาะรายการที่คุณเป็น <strong>"คนโพสต์"</strong> หรือ <strong>"คนติดต่อทำรายการ"</strong> เท่านั้น (บุคคลอื่นจะไม่สามารถเห็นรายการของคุณ)
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <input type="text" id="poster-lookup-input" oninput="window.setPosterLookupQuery(this.value)" placeholder="ระบุชื่อหรือเบอร์โทรของคุณเพื่อเช็ก..." class="bg-white border border-sky-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-sky-600 w-60">
+          <button type="button" id="progress-login-btn" onclick="window.toggleAuthModal(true, 'login')" class="bg-sky-700 hover:bg-sky-800 text-white font-bold px-4 py-2 rounded-xl shadow-xs transition shrink-0">
+            🔐 ลงชื่อเข้าใช้เพื่อดูรายการของฉัน
+          </button>
+        </div>
+      </div>
+
+      <!-- ปุ่มกรองรายงานความคืบหน้า (แยกฝั่งคนโพสต์ / คนติดต่อ) -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs font-bold text-slate-600 mr-1">แยกดูตามสถานะ:</span>
+        <button type="button" id="prog-filter-all" onclick="window.setProgressFilter('all')" class="prog-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-full">📋 รายการที่เกี่ยวข้องทั้งหมด</button>
+        <button type="button" id="prog-filter-my_posts" onclick="window.setProgressFilter('my_posts')" class="prog-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-full hover:bg-slate-50">📣 ฉันเป็นคนโพสต์</button>
+        <button type="button" id="prog-filter-my_contacts" onclick="window.setProgressFilter('my_contacts')" class="prog-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-full hover:bg-slate-50">🤝 ฉันเป็นคนติดต่อ</button>
+        <button type="button" id="prog-filter-market" onclick="window.setProgressFilter('market')" class="prog-filter-btn hidden bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-full hover:bg-slate-50">🛒 ซื้อ-ขายผลผลิต</button>
+        <button type="button" id="prog-filter-service" onclick="window.setProgressFilter('service')" class="prog-filter-btn hidden bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-full hover:bg-slate-50">🚜 จองคิวบริการเกษตร</button>
+      </div>
+
+      <!-- รายการการ์ดรายงานความคืบหน้า -->
+      <div id="progress-list-container" class="space-y-3.5"></div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       ปุ่มแชทลอยมุมขวาล่าง (ติดต่อแอดมิน / กล่องข้อความแอดมิน)
+       ===================================================================== -->
+  <button type="button" onclick="window.openFloatingAdminChat()" class="fixed bottom-5 right-5 z-40 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-full shadow-xl border-2 border-amber-300 flex items-center gap-2 transition">
+    <span class="text-base">💬</span>
+    <span id="floating-chat-label">แชทติดต่อแอดมิน</span>
+    <span id="floating-chat-badge" class="hidden bg-rose-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">0</span>
+  </button>
+
+  <!-- แจ้งเตือนเด้งมุมขวาบนสำหรับแอดมิน -->
+  <div id="admin-live-alert" class="hidden fixed top-20 right-5 z-50 bg-slate-900 text-white border-2 border-amber-400 rounded-2xl p-4 shadow-2xl max-w-sm w-full space-y-2.5">
+    <div class="flex items-start justify-between gap-2">
+      <span class="bg-amber-400 text-slate-950 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+        🔔 แจ้งเตือนความคืบหน้าใหม่ถึงแอดมิน
+      </span>
+      <button type="button" onclick="window.dismissAdminAlert()" class="text-slate-400 hover:text-white text-lg leading-none">×</button>
+    </div>
+    <div id="admin-live-alert-body" class="text-xs text-slate-200 space-y-1"></div>
+    <div class="flex gap-2 pt-1">
+      <button type="button" onclick="window.goToAdminProgressFromAlert()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 rounded-xl transition">
+        📋 ดูรายงานความคืบหน้า / อนุมัติ
+      </button>
+      <button type="button" onclick="window.dismissAdminAlert()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs px-3 py-2 rounded-xl transition">
+        ปิด
+      </button>
+    </div>
+  </div>
+
+  <!-- แจ้งเตือนเด้งมุมซ้ายบนสำหรับคนโพสต์ -->
+  <div id="poster-live-alert" class="hidden fixed top-20 left-5 z-50 bg-emerald-950 text-white border-2 border-sky-400 rounded-2xl p-4 shadow-2xl max-w-sm w-full space-y-2.5">
+    <div class="flex items-start justify-between gap-2">
+      <span class="bg-sky-400 text-slate-950 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+        📣 แจ้งเตือนถึงคนโพสต์ (มีคนจองคิว / ซื้อ-ขาย)
+      </span>
+      <button type="button" onclick="window.dismissPosterAlert()" class="text-slate-300 hover:text-white text-lg leading-none">×</button>
+    </div>
+    <div id="poster-live-alert-body" class="text-xs text-emerald-100 space-y-1"></div>
+    <div class="flex gap-2 pt-1">
+      <button type="button" onclick="window.goToPosterProgressFromAlert()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-2 rounded-xl transition">
+        📋 เปิดดูความคืบหน้าโพสต์ของฉัน
+      </button>
+      <button type="button" onclick="window.dismissPosterAlert()" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-bold text-xs px-3 py-2 rounded-xl transition">
+        ปิด
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 1: โพสต์ขายผลผลิต (ช่องกรอกว่างเปล่าทั้งหมด)
+       ===================================================================== -->
+  <div id="post-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">สมาชิกสหกรณ์การเกษตร</span>
+          <h3 class="text-lg font-extrabold text-slate-900 mt-1">ประกาศจำหน่ายผลผลิตทางการเกษตร</h3>
+        </div>
+        <button type="button" onclick="window.togglePostModal(false)" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <form id="post-crop-form" onsubmit="window.handlePostCropSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ขาย</label>
+          <input type="text" id="post-seller" value="" placeholder="กรอกชื่อผู้ขาย..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="post-phone" value="" placeholder="เช่น 08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชนิดผลผลิต (5 พืชหลัก)</label>
+            <select id="post-crop" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+              <option value="">-- เลือกชนิดผลผลิต --</option>
+              <option value="ข้าวเปลือกหอมมะลิ">🌾 ข้าวเปลือกหอมมะลิ</option>
+              <option value="มันสำปะหลังสด">🥔 มันสำปะหลังสด</option>
+              <option value="ยางพารา">🌳 ยางพารา</option>
+              <option value="อ้อยโรงงาน">🎋 อ้อยโรงงาน</option>
+              <option value="ปาล์มน้ำมัน">🌴 ปาล์มน้ำมัน</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ปริมาณ (ตัน)</label>
+            <input type="number" id="post-qty" value="" step="0.1" min="0.1" placeholder="เช่น 5" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ราคาขาย (บ./ตัน)</label>
+            <input type="number" id="post-price" value="" min="100" placeholder="เช่น 15500" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">พื้นที่ (อ.นาตาล)</label>
+            <select id="post-area" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+              <option value="">-- เลือกตำบล --</option>
+              <option value="ต.นาตาล">ต.นาตาล</option>
+              <option value="ต.พะลาน">ต.พะลาน</option>
+              <option value="ต.กองโพน">ต.กองโพน</option>
+              <option value="ต.พังเคน">ต.พังเคน</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">รายละเอียดการคัดเกรดและบรรจุภัณฑ์</label>
+          <input type="text" id="post-grade" value="" placeholder="เช่น เกรด A ความชื้น 15% บรรจุกระสอบสหกรณ์" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-3 rounded-xl transition">บันทึกประกาศขายผลผลิต</button>
+          <button type="button" onclick="window.togglePostModal(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 2: ต่อรองราคา / เสนอซื้อ
+       ===================================================================== -->
+  <div id="negotiate-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">ระบบต่อรองราคาเป็นธรรม</span>
+          <h3 id="neg-modal-title" class="text-lg font-extrabold text-slate-900 mt-1">ต่อรองราคาผลผลิต</h3>
+        </div>
+        <button type="button" onclick="window.closeNegotiateModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <form id="negotiate-form" onsubmit="window.handleNegotiateSubmit(event)" class="space-y-3.5">
+        <input type="hidden" id="neg-item-index">
+        <div id="neg-summary-box" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs space-y-1"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ติดต่อ / ผู้เสนอซื้อ</label>
+            <input type="text" id="neg-buyer-name" value="" placeholder="กรอกชื่อของคุณ..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="neg-buyer-phone" value="" placeholder="เช่น 08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ราคาที่คุณต้องการเสนอต่อรอง (บาท/ตัน)</label>
+          <input type="number" id="neg-offer-price" value="" placeholder="ระบุราคาที่ต้องการเสนอซื้อ..." oninput="window.checkFairOfferPrice()" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold">
+          <div id="neg-fair-status" class="text-xs font-bold text-emerald-700 mt-1">✅ กรุณาระบุราคาที่อยู่ในกรอบการต่อรองที่เป็นธรรมแก่ทั้งสองฝ่าย</div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ข้อความถึงผู้ขาย / เงื่อนไขการรับสินค้า</label>
+          <textarea id="neg-note" rows="2" placeholder="เช่น มีรถไปรับถึงที่ใน ต.นาตาล จ่ายเงินสดทันทีหน้าลานสหกรณ์" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-3 rounded-xl transition">ส่งข้อเสนอต่อรองราคา</button>
+          <button type="button" onclick="window.closeNegotiateModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 3: เพิ่มบริการเกษตรใหม่
+       ===================================================================== -->
+  <div id="add-service-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">เครือข่ายบริการเกษตร</span>
+          <h3 class="text-lg font-extrabold text-slate-900 mt-1">ลงทะเบียนเพิ่มบริการทางการเกษตร</h3>
+        </div>
+        <button type="button" onclick="window.toggleAddServiceModal(false)" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <form id="add-service-form" onsubmit="window.handleAddServiceSubmit(event)" class="space-y-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">หมวดหมู่บริการ</label>
+            <input type="text" id="svc-cat" value="" placeholder="เช่น รถไถ/พรวนดิน, รถขนส่ง" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อบริการ / ทีมงาน</label>
+            <input type="text" id="svc-name" value="" placeholder="ระบุชื่อบริการหรือทีมงาน" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ดูแลบริการ</label>
+            <input type="text" id="svc-owner" value="" placeholder="ชื่อ-นามสกุล" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อเล่น</label>
+            <input type="text" id="svc-nick" value="" placeholder="ชื่อเล่น" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="svc-phone" value="" placeholder="08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">พื้นที่ให้บริการ</label>
+          <input type="text" id="svc-area" value="" placeholder="เช่น ต.นาตาล, ต.พะลาน อ.นาตาล" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">อัตราค่าบริการ (บาท)</label>
+            <input type="number" id="svc-rate" value="" placeholder="เช่น 350" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">หน่วยค่าบริการ</label>
+            <input type="text" id="svc-unit" value="" placeholder="เช่น บาท/ไร่ หรือ บาท/ตัน" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-3 rounded-xl transition">บันทึกข้อมูลบริการเกษตร</button>
+          <button type="button" onclick="window.toggleAddServiceModal(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 4: จองคิวบริการเกษตรแบบเลือกวันได้
+       ===================================================================== -->
+  <div id="book-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-0.5 rounded-full">ระบบจองคิวเลือกวันล่วงหน้า</span>
+          <h3 id="book-modal-title" class="text-lg font-extrabold text-slate-900 mt-1">จองคิวว่าจ้างบริการ</h3>
+        </div>
+        <button type="button" onclick="window.closeBookModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <form id="book-form" onsubmit="window.handleBookSubmit(event)" class="space-y-3.5">
+        <input type="hidden" id="book-svc-index">
+        <div id="book-summary-box" class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs space-y-1"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ว่าจ้าง / เกษตรกร</label>
+            <input type="text" id="book-cust-name" value="" placeholder="กรอกชื่อของคุณ..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="book-cust-phone" value="" placeholder="เช่น 08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">📅 เลือกวันที่ต้องการจองคิว</label>
+            <input type="date" id="book-date" onchange="window.checkBookingDateAvailability()" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">⏰ ช่วงเวลาที่นัดหมาย</label>
+            <select id="book-time-slot" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+              <option value="ช่วงเช้า (07:00 - 12:00 น.)">ช่วงเช้า (07:00 - 12:00 น.)</option>
+              <option value="ช่วงบ่าย (13:00 - 17:00 น.)">ช่วงบ่าย (13:00 - 17:00 น.)</option>
+              <option value="เต็มวัน (07:00 - 17:00 น.)">เต็มวัน (07:00 - 17:00 น.)</option>
+            </select>
+          </div>
+        </div>
+        <div id="book-date-status" class="text-xs font-bold text-emerald-700"></div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">จำนวนพื้นที่ / ปริมาณงาน (ไร่ / ตัน / วัน)</label>
+          <input type="text" id="book-amount" value="" placeholder="เช่น 15 ไร่ หรือ 10 ตัน" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">พิกัดแปลงเกษตร / รายละเอียดเพิ่มเติม</label>
+          <textarea id="book-note" rows="2" placeholder="เช่น บ้านพะลาน ต.พะลาน ติดถนนใหญ่" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="flex-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl transition">📅 ยืนยันการจองคิวตามวันที่เลือก</button>
+          <button type="button" onclick="window.closeBookModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 5: แอดมินยกเลิกรายการพร้อมกรอกเหตุผล
+       ===================================================================== -->
+  <div id="cancel-progress-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-0.5 rounded-full">🛡️ สำหรับแอดมิน</span>
+          <h3 class="text-lg font-extrabold text-slate-900 mt-1">ยกเลิกรายการ & ระบุเหตุผล</h3>
+        </div>
+        <button type="button" onclick="window.closeCancelProgressModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+      <form onsubmit="window.handleCancelProgressSubmit(event)" class="space-y-3.5">
+        <input type="hidden" id="cancel-prog-index">
+        <div id="cancel-prog-summary" class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-900"></div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">กรอกเหตุผลที่ยกเลิกรายการ</label>
+          <textarea id="cancel-reason-input" rows="3" placeholder="ระบุเหตุผลที่ยกเลิก เช่น ผู้ขายแจ้งสินค้าหมดชั่วคราว หรือ คิวงานซ้ำซ้อน..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm"></textarea>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2.5 rounded-xl transition">🚫 ยืนยันการยกเลิกรายการ</button>
+          <button type="button" onclick="window.closeCancelProgressModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl transition">ปิด</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 6: ลงชื่อเข้าใช้ / สมัครสมาชิก / ลืมรหัสผ่าน
+       ===================================================================== -->
+  <div id="auth-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">ระบบสมาชิกสหกรณ์</span>
+          <h3 class="text-lg font-extrabold text-slate-900 mt-1">บัญชีผู้ใช้งาน ALL IN ONE การเกษตร</h3>
+        </div>
+        <button type="button" onclick="window.toggleAuthModal(false)" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <!-- แท็บสลับ เข้าสู่ระบบ / สมัครสมาชิก -->
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl mb-4">
+        <button type="button" id="auth-tab-login" onclick="window.switchAuthTab('login')" class="bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition">ลงชื่อเข้าใช้</button>
+        <button type="button" id="auth-tab-register" onclick="window.switchAuthTab('register')" class="text-slate-700 text-xs font-bold py-2 rounded-lg transition">สมัครสมาชิกใหม่</button>
+      </div>
+
+      <!-- ฟอร์ม 1: ลงชื่อเข้าใช้ -->
+      <form id="login-form" onsubmit="window.handleLoginSubmit(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ใช้</label>
+          <input type="text" id="login-username" value="" placeholder="กรอกชื่อผู้ใช้..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-700">รหัสผ่าน</label>
+            <button type="button" onclick="window.switchAuthTab('forgot')" class="text-xs font-bold text-emerald-700 hover:underline">🔑 ลืมรหัสผ่าน?</button>
+          </div>
+          <input type="password" id="login-password" value="" placeholder="กรอกรหัสผ่าน..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-3 rounded-xl transition">เข้าสู่ระบบ</button>
+      </form>
+
+      <!-- ฟอร์ม 2: สมัครสมาชิกใหม่ (บังคับเบอร์โทร + Gmail) -->
+      <form id="register-form" onsubmit="window.handleRegisterSubmit(event)" class="hidden space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ใช้ (สำหรับเข้าสู่ระบบ)</label>
+          <input type="text" id="reg-username" value="" placeholder="ตั้งชื่อผู้ใช้..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์</label>
+          <input type="tel" id="reg-phone" value="" placeholder="เช่น 08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">อีเมล Gmail (@gmail.com)</label>
+          <input type="email" id="reg-gmail" value="" placeholder="example@gmail.com" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ประเภทผู้ใช้งาน</label>
+          <select id="reg-role" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+            <option value="เกษตรกรสมาชิก">👩‍🌾 เกษตรกรสมาชิก</option>
+            <option value="ผู้รับจ้าง/บริการเกษตร">🚜 ผู้รับจ้าง/บริการเกษตร</option>
+            <option value="ผู้ซื้อ/ลานรับซื้อ">🏪 ผู้ซื้อ/ลานรับซื้อ</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ตั้งรหัสผ่าน</label>
+          <input type="password" id="reg-password" value="" placeholder="ตั้งรหัสผ่านอย่างน้อย 4 ตัวอักษร" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-3 rounded-xl transition">ยืนยันการสมัครสมาชิก</button>
+      </form>
+
+      <!-- ฟอร์ม 3: ลืมรหัสผ่าน (ยืนยันด้วยชื่อผู้ใช้ + เบอร์โทร + Gmail) -->
+      <form id="forgot-form" onsubmit="window.handleForgotPasswordSubmit(event)" class="hidden space-y-3">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+          กรอกชื่อผู้ใช้ เบอร์โทรศัพท์ และอีเมล Gmail ที่ลงทะเบียนไว้ให้ตรงกันเพื่อตั้งรหัสผ่านใหม่
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้ใช้</label>
+          <input type="text" id="forgot-username" value="" placeholder="กรอกชื่อผู้ใช้..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ที่ใช้สมัคร</label>
+          <input type="tel" id="forgot-phone" value="" placeholder="08x-xxx-xxxx" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">อีเมล Gmail ที่ใช้สมัคร</label>
+          <input type="email" id="forgot-gmail" value="" placeholder="example@gmail.com" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">รหัสผ่านใหม่</label>
+          <input type="password" id="forgot-new-password" value="" placeholder="ตั้งรหัสผ่านใหม่..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm">
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm py-2.5 rounded-xl transition">บันทึกรหัสผ่านใหม่</button>
+          <button type="button" onclick="window.switchAuthTab('login')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl transition">กลับ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 7: ห้องแชทสนทนา (คนซื้อ-คนขาย / ผู้ว่าจ้าง-ผู้ให้บริการ / ติดต่อแอดมิน)
+       ===================================================================== -->
+  <div id="item-chat-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      <!-- หัวห้องแชท -->
+      <div class="bg-emerald-900 text-white p-4 flex items-start justify-between gap-2">
+        <div>
+          <span id="chat-room-badge" class="bg-amber-400 text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">ห้องสนทนา</span>
+          <h3 id="chat-room-title" class="text-base font-extrabold mt-1">ห้องแชท</h3>
+          <p id="chat-room-sub" class="text-xs text-emerald-200"></p>
+        </div>
+        <button type="button" onclick="window.closeItemChatModal()" class="text-emerald-200 hover:text-white text-2xl leading-none">×</button>
+      </div>
+
+      <!-- แถบเลือกบทบาทผู้ส่ง (สำหรับห้องซื้อ-ขาย และ บริการเกษตร) -->
+      <div id="chat-role-bar" class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-1.5">
+          <span class="font-bold text-slate-600">สถานะผู้ส่ง:</span>
+          <button type="button" id="chat-role-btn-1" onclick="window.setChatSenderRole(1)" class="bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg">🛒 คนซื้อ</button>
+          <button type="button" id="chat-role-btn-2" onclick="window.setChatSenderRole(2)" class="bg-white text-slate-700 border border-slate-300 font-bold px-2.5 py-1 rounded-lg">🌾 คนขาย</button>
+        </div>
+        <input type="text" id="chat-sender-name-input" placeholder="ระบุชื่อของคุณ..." class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs w-36">
+      </div>
+
+      <!-- รายการข้อความแชท -->
+      <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 min-h-[240px]"></div>
+
+      <!-- แถบอ้างอิงข้อความตอบกลับ (Quote Reply) -->
+      <div id="chat-reply-preview" class="hidden bg-emerald-50 border-t border-emerald-200 px-4 py-2 flex items-center justify-between gap-2 text-xs">
+        <div class="truncate text-emerald-900">
+          <span class="font-extrabold">↩️ กำลังตอบกลับ:</span> <span id="chat-reply-text"></span>
+        </div>
+        <button type="button" onclick="window.clearChatReply()" class="text-slate-500 hover:text-rose-600 font-bold">✕</button>
+      </div>
+
+      <!-- ข้อความด่วน -->
+      <div id="chat-quick-chips" class="px-4 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto text-[11px]"></div>
+
+      <!-- ช่องพิมพ์ส่งข้อความ -->
+      <form onsubmit="window.handleSendChatSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+        <input type="text" id="chat-message-input" placeholder="พิมพ์ข้อความสนทนา..." required class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600">
+        <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shrink-0">ส่งข้อความ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 8: กล่องรวมข้อความแชท (Chat Hub สำหรับผู้ซื้อ-ผู้ขาย / บริการ / แอดมิน)
+       ===================================================================== -->
+  <div id="chat-hub-modal" class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">ศูนย์รวมข้อความสนทนา</span>
+          <h3 id="chat-hub-title" class="text-lg font-extrabold text-slate-900 mt-1">📬 กล่องรวมข้อความแชท</h3>
+        </div>
+        <button type="button" onclick="window.closeChatHubModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
+      </div>
+
+      <div id="chat-hub-tabs" class="flex flex-wrap gap-1.5 mb-3"></div>
+      <div id="chat-hub-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
+    </div>
+  </div>
+
+  <!-- Toast แจ้งเตือน -->
+  <div id="toast-notification" class="hidden fixed bottom-20 right-5 z-50 bg-emerald-900 text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-2xl shadow-xl border border-emerald-400"></div>
+
+  <!-- =====================================================================
+       ส่วนท้ายเว็บไซต์ (Footer)
+       ===================================================================== -->
+  <footer class="bg-slate-900 text-slate-300 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs sm:text-sm">
+      <div>
+        <h4 class="text-white font-extrabold text-base mb-2">🌱 โครงงาน ALL IN ONE การเกษตร</h4>
+        <p class="text-slate-400 leading-relaxed">
+          แบบจำลองเว็บไซต์สหกรณ์การเกษตรดิจิทัล อำเภอนาตาล จังหวัดอุบลราชธานี เพื่อส่งเสริมการเข้าถึงข้อมูลราคา การคัดเกรด การต่อรองราคาที่เป็นธรรม และการว่าจ้างบริการทางการเกษตรครบวงจร
+        </p>
+      </div>
+      <div>
+        <h4 class="text-white font-extrabold text-base mb-2">👥 คณะผู้จัดทำโครงงาน (สมาชิกครบ 7 คน)</h4>
+        <ul class="space-y-1.5 text-slate-300 text-xs">
+          <li>1. นายจีระศักดิ์ แสงอร่าม (บอส) โทร. <a href="tel:0947126090" onclick="window.triggerPhoneCall('0947126090')" class="text-emerald-400 underline">094-712-6090</a></li>
+          <li>2. นายพลชนะ ชาตรี (โอม) โทร. <a href="tel:0945730471" onclick="window.triggerPhoneCall('0945730471')" class="text-emerald-400 underline">094-573-0471</a></li>
+          <li>3. นายพิเชษฐ์ชัย ประสมพลอย โทร. <a href="tel:0624181699" onclick="window.triggerPhoneCall('0624181699')" class="text-emerald-400 underline">062-418-1699</a></li>
+          <li>4. นางสาวนันท์นภัส เหล่ามั่น (นิด) โทร. <a href="tel:0822309934" onclick="window.triggerPhoneCall('0822309934')" class="text-emerald-400 underline">082-230-9934</a></li>
+          <li>5. นางสาวพรชนก พ่อบาล (แบม) โทร. <a href="tel:0619680515" onclick="window.triggerPhoneCall('0619680515')" class="text-emerald-400 underline">061-968-0515</a></li>
+          <li>6. นางสาวภาษิตา วงศ์ด้วง (อุ๋งอิ๋ง) โทร. <a href="tel:0822614568" onclick="window.triggerPhoneCall('0822614568')" class="text-emerald-400 underline">082-261-4568</a></li>
+          <li>7. นางสาววิชญาดา มิ่งมูล (ไอซ์) โทร. <a href="tel:0831230474" onclick="window.triggerPhoneCall('0831230474')" class="text-emerald-400 underline">083-123-0474</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-extrabold text-base mb-2">👩‍🏫 ครูที่ปรึกษาโครงงาน</h4>
+        <p class="text-slate-300 text-xs mb-1">1. นางเปรมฤทัย พรหมกสิกร</p>
+        <p class="text-slate-300 text-xs mb-4">2. นางเมกิยะ คำป้อง</p>
+        <div class="bg-slate-800 rounded-xl p-3 text-xs text-slate-400">
+          ผู้ประสานงานตลาดสหกรณ์: นายพิเชษฐ์ชัย ประสมพลอย (<a href="tel:0624181699" onclick="window.triggerPhoneCall('0624181699')" class="text-emerald-400 underline">062-418-1699</a>)
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       JAVASCRIPT LOGIC (ครบถ้วน 100% พร้อมเชื่อมต่อ Google Sheets 2 ทาง)
+       ===================================================================== -->
+  <script>
+    const BACKEND_SYNC_URL = "https://script.google.com/macros/s/AKfycbzkYhGza9iYskq6Hm90EaFNk-HsPq2Wr0qovaQLC8hVafDQXkmHm6idbePHEy31f-rI/exec";
+
+    const safeStorage = {
+      get(key) {
+        try { return window.localStorage.getItem(key); } catch (e) { return null; }
+      },
+      set(key, val) {
+        try { window.localStorage.setItem(key, val); } catch (e) {}
+      },
+      remove(key) {
+        try { window.localStorage.removeItem(key); } catch (e) {}
+      }
+    };
+
+    function escapeHtmlSafe(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatThaiDateTime(rawVal) {
+      if (!rawVal) return new Date().toLocaleString('th-TH');
+      const s = String(rawVal).trim();
+      if (s.includes('T') && !isNaN(Date.parse(s))) {
+        return new Date(s).toLocaleString('th-TH');
+      }
+      return s;
+    }
+
+    function triggerPhoneCall(phoneStr) {
+      const clean = String(phoneStr || '').replace(/[^0-9+]/g, '');
+      if (clean) window.location.href = 'tel:' + clean;
+    }
+    window.triggerPhoneCall = triggerPhoneCall;
+
+    function showToast(msg) {
+      const el = document.getElementById('toast-notification');
+      if (!el) return;
+      el.innerText = msg;
+      el.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        el.classList.add('hidden');
+      }, 3600);
+    }
+    window.showToast = showToast;
+
+    // =====================================================================
+    // 1. ข้อมูลพืชเศรษฐกิจ 5 ชนิด & สถานะระบบ
+    // =====================================================================
+    const cropsData = [
+      { id: 'C01', icon: '🌾', name: 'ข้าวเปลือกหอมมะลิ', standard: 'ความชื้นมาตรฐาน ≤ 15%', coopMinPrice: 15100, basePrice: 15800, trend: '▲ +200 บ./ตัน' },
+      { id: 'C02', icon: '🥔', name: 'มันสำปะหลังสด', standard: 'เชื้อแป้ง 28% - 30%', coopMinPrice: 3200, basePrice: 3400, trend: '▲ +50 บ./ตัน' },
+      { id: 'C03', icon: '🌳', name: 'ยางพารา (ก้อนถ้วย)', standard: 'ยางก้อนถ้วยสะอาด คัดเกรด', coopMinPrice: 34800, basePrice: 36000, trend: 'ราคาประมูลสหกรณ์' },
+      { id: 'C04', icon: '🎋', name: 'อ้อยโรงงาน', standard: 'อ้อยสดตัดสะอาด 11.5 CCS', coopMinPrice: 1450, basePrice: 1550, trend: 'ปลอดอ้อยไฟไหม้' },
+      { id: 'C05', icon: '🌴', name: 'ปาล์มน้ำมัน', standard: 'ทะลายสุกคัดเกรด A', coopMinPrice: 6400, basePrice: 6700, trend: '▲ +100 บ./ตัน' }
+    ];
+
+    let marketListings = [];
+    let laborProviders = [];
+    let activityLogs = [];
+    let pendingApprovals = [];
+    let registeredUsers = [];
+    let adminAccounts = [{ username: 'allinone1111++==', password: 'G1987889', fullName: 'นายพิเชษฐ์ชัย ประสมพลอย (แอดมินหลัก)' }];
+    let chatMessages = [];
+
+    let currentMarketFilter = 'all';
+    let currentLaborFilter = 'all';
+    let currentProgressFilter = 'all';
+    let currentUser = null;
+    let isAdminMode = false;
+    let isInitialLoading = true;
+    let hasInitializedActivitySnapshot = false;
+    let knownActivityIds = new Set();
+    let knownChatIds = new Set();
+
+    // สถานะห้องแชทปัจจุบัน
+    let activeChatRoomId = '';
+    let activeChatType = '';
+    let activeChatTopic = '';
+    let activeChatSenderRoleIndex = 1;
+    let activeChatReplyText = '';
+    let activeChatHubMode = 'market';
+    let activeChatHubSubFilter = 'all';
+
+    let guestChatSessionId = safeStorage.get('allinone_guest_session') || ('USR-' + Math.floor(1000 + Math.random() * 9000));
+    safeStorage.set('allinone_guest_session', guestChatSessionId);
+    let guestChatName = safeStorage.get('allinone_guest_name') || '';
+
+    let acknowledgedProgressIds = new Set();
+    try {
+      const savedAck = safeStorage.get('allinone_agri_ack_ids');
+      if (savedAck) acknowledgedProgressIds = new Set(JSON.parse(savedAck));
+    } catch (e) {}
+
+    function saveAcknowledgedIds() {
+      safeStorage.set('allinone_agri_ack_ids', JSON.stringify(Array.from(acknowledgedProgressIds)));
+    }
+
+    let posterAcknowledgedIds = new Set();
+    try {
+      const savedPosterAck = safeStorage.get('allinone_agri_poster_ack_ids');
+      if (savedPosterAck) posterAcknowledgedIds = new Set(JSON.parse(savedPosterAck));
+    } catch (e) {}
+
+    function savePosterAcknowledgedIds() {
+      safeStorage.set('allinone_agri_poster_ack_ids', JSON.stringify(Array.from(posterAcknowledgedIds)));
+    }
+
+    let myCreatedPostKeywords = [];
+    let myContactedLogIds = [];
+    let myUserIdentities = [];
+    let posterLookupQuery = '';
+    try {
+      const savedMyPosts = safeStorage.get('allinone_agri_my_posts');
+      if (savedMyPosts) myCreatedPostKeywords = JSON.parse(savedMyPosts);
+      const savedMyContacts = safeStorage.get('allinone_agri_my_contacts');
+      if (savedMyContacts) myContactedLogIds = JSON.parse(savedMyContacts);
+      const savedIdentities = safeStorage.get('allinone_agri_my_identities');
+      if (savedIdentities) myUserIdentities = JSON.parse(savedIdentities);
+    } catch (e) {}
+
+    function recordMyCreatedPost(keyword) {
+      const clean = String(keyword || '').trim();
+      if (!clean) return;
+      if (!myCreatedPostKeywords.includes(clean)) {
+        myCreatedPostKeywords.push(clean);
+        safeStorage.set('allinone_agri_my_posts', JSON.stringify(myCreatedPostKeywords));
+      }
+    }
+
+    function recordMyContactedLog(logId) {
+      const clean = String(logId || '').trim();
+      if (!clean) return;
+      if (!myContactedLogIds.includes(clean)) {
+        myContactedLogIds.push(clean);
+        safeStorage.set('allinone_agri_my_contacts', JSON.stringify(myContactedLogIds));
+      }
+    }
+
+    function recordMyIdentity(nameStr, phoneStr) {
+      const n = String(nameStr || '').trim();
+      const p = String(phoneStr || '').replace(/[^0-9]/g, '');
+      if (n && !myUserIdentities.includes(n)) myUserIdentities.push(n);
+      if (p.length >= 6 && !myUserIdentities.includes(p)) myUserIdentities.push(p);
+      safeStorage.set('allinone_agri_my_identities', JSON.stringify(myUserIdentities));
+    }
+
+    function setPosterLookupQuery(val) {
+      posterLookupQuery = String(val || '').trim();
+      renderProgressReport();
+    }
+    window.setPosterLookupQuery = setPosterLookupQuery;
+
+    function checkIsAdmin() {
+      return Boolean(isAdminMode && currentUser && currentUser.isAdmin);
+    }
+
+    // =====================================================================
+    // 2. การสลับหน้า 5 เมนู (แยกคนละหน้าชัดเจน)
+    // =====================================================================
+    function setRole(roleKey) {
+      document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-pill').forEach(btn => {
+        btn.classList.remove('bg-emerald-700', 'text-white');
+        btn.classList.add('text-slate-700', 'hover:bg-slate-200');
+      });
+
+      const targetSec = document.getElementById('page-' + roleKey);
+      const targetBtn = document.getElementById('nav-' + roleKey);
+      if (targetSec) targetSec.classList.add('active');
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-700', 'hover:bg-slate-200');
+        targetBtn.classList.add('bg-emerald-700', 'text-white');
+      }
+
+      const titleEl = document.getElementById('banner-title');
+      const descEl = document.getElementById('banner-desc');
+      if (roleKey === 'farmer') {
+        titleEl.innerText = '📊 เช็กราคารับซื้อพืชเศรษฐกิจ 5 ชนิด อำเภอนาตาล';
+        descEl.innerText = 'ตรวจสอบราคากลางสหกรณ์และราคาซื้อ-ขายจริงในพื้นที่ เพื่อวางแผนจำหน่ายผลผลิตอย่างคุ้มค่า';
+      } else if (roleKey === 'calculator') {
+        titleEl.innerText = '🧮 เครื่องคำนวณราคาคัดเกรด & เปรียบเทียบราคาซื้อ-ขาย';
+        descEl.innerText = 'คำนวณรายได้ตามเกรดคุณภาพผลผลิต และเปรียบเทียบราคาขั้นต่ำสหกรณ์กับราคาซื้อขายจริง';
+      } else if (roleKey === 'buyer') {
+        titleEl.innerText = '🏪 ตลาดซื้อ-ขายผลผลิตเกษตร & ต่อรองราคาออนไลน์';
+        descEl.innerText = 'ประสานงานซื้อ-ขายโดยตรงกับเกษตรกร อ.นาตาล ดูแลโดย นายพิเชษฐ์ชัย ประสมพลอย (062-418-1699)';
+      } else if (roleKey === 'contractor') {
+        titleEl.innerText = '🚜 บริการทางการเกษตร & จองคิวเลือกวันล่วงหน้า';
+        descEl.innerText = 'รวมบริการรถไถ รถเกี่ยว รถขนส่ง และแรงงานเกษตรในพื้นที่ อ.นาตาล พร้อมระบบแชทและจองคิวเลือกวัน';
+      } else if (roleKey === 'progress') {
+        titleEl.innerText = '📋 รายงานความคืบหน้า & ระบบแจ้งเตือนคนโพสต์';
+        descEl.innerText = 'ติดตามสถานะการจองคิวและการซื้อ-ขายแบบเรียลไทม์ พร้อมแจ้งเตือนตรงถึงเจ้าของโพสต์';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.setRole = setRole;
+
+    // =====================================================================
+    // 3. ส่งข้อมูลไปบันทึกหลังบ้าน (POST) & ดึงข้อมูลอัตโนมัติทุก 5 วินาที (GET)
+    // =====================================================================
+    async function syncPayloadToGSheet(payload) {
+      try {
+        await fetch(BACKEND_SYNC_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Sync notice:', err);
+      }
+    }
+
+    function extractPosterInfoFromLog(typeStr, itemNameStr, noteStr) {
+      let posterName = '';
+      let posterPhone = '';
+
+      const sellerWithPhone = String(noteStr || '').match(/ผู้ขาย:\s*([^|(]+)\(([^)]+)\)/);
+      if (sellerWithPhone) {
+        posterName = sellerWithPhone[1].trim();
+        posterPhone = sellerWithPhone[2].trim();
+      } else {
+        const sellerMatch = String(noteStr || '').match(/ผู้ขาย:\s*([^|]+)/);
+        if (sellerMatch && sellerMatch[1]) posterName = sellerMatch[1].trim();
+      }
+
+      const providerWithPhone = String(noteStr || '').match(/ผู้ดูแลบริการ:\s*([^|(]+)\(([^)]+)\)/);
+      if (!posterName && providerWithPhone) {
+        posterName = providerWithPhone[1].trim();
+        posterPhone = providerWithPhone[2].trim();
+      } else if (!posterName) {
+        const providerMatch = String(noteStr || '').match(/ผู้ดูแลบริการ:\s*([^|]+)/);
+        if (providerMatch && providerMatch[1]) posterName = providerMatch[1].trim();
+      }
+
+      if (typeStr.includes('ซื้อ-ขาย') || typeStr.includes('ขายผลผลิต')) {
+        const matchedMkt = marketListings.find(m =>
+          itemNameStr.includes(m.crop) && (!posterName || m.seller.includes(posterName) || posterName.includes(m.seller))
+        ) || marketListings.find(m => itemNameStr.includes(m.crop));
+        if (matchedMkt) {
+          if (!posterName) posterName = matchedMkt.seller;
+          if (!posterPhone) posterPhone = matchedMkt.phone;
+        }
+      } else if (typeStr.includes('บริการ')) {
+        const matchedSvc = laborProviders.find(s =>
+          itemNameStr.includes(s.name) && (!posterName || s.owner.includes(posterName) || posterName.includes(s.owner))
+        ) || laborProviders.find(s => itemNameStr.includes(s.name));
+        if (matchedSvc) {
+          if (!posterName) posterName = matchedSvc.owner;
+          if (!posterPhone) posterPhone = matchedSvc.phone;
+        }
+      }
+
+      return {
+        posterName: posterName || 'สมาชิกผู้โพสต์สหกรณ์',
+        posterPhone: posterPhone || ''
+      };
+    }
+
+    function isLogOwnedByCurrentUser(log) {
+      if (!log) return false;
+      const posterName = String(log.posterName || '').trim();
+      const posterPhone = String(log.posterPhone || '').replace(/[^0-9]/g, '');
+      const itemTitle = String(log.itemName || '').trim();
+
+      if (posterLookupQuery) {
+        const qDigits = posterLookupQuery.replace(/[^0-9]/g, '');
+        if ((posterName && posterName.includes(posterLookupQuery)) || itemTitle.includes(posterLookupQuery)) return true;
+        if (qDigits.length >= 4 && posterPhone && posterPhone.includes(qDigits)) return true;
+      }
+
+      if (currentUser && !checkIsAdmin()) {
+        const uName = String(currentUser.username || '').trim();
+        const uPhone = String(currentUser.phone || '').replace(/[^0-9]/g, '');
+        if (uName && posterName && (posterName.includes(uName) || uName.includes(posterName))) return true;
+        if (uPhone.length >= 6 && posterPhone && uPhone === posterPhone) return true;
+      }
+
+      const gName = String(guestChatName || '').trim();
+      if (gName && posterName && (posterName.includes(gName) || gName.includes(posterName))) return true;
+
+      if (myUserIdentities.some(idVal => {
+        if (!idVal) return false;
+        const digits = idVal.replace(/[^0-9]/g, '');
+        if (digits.length >= 6 && posterPhone && digits === posterPhone) return true;
+        return posterName && (posterName.includes(idVal) || idVal.includes(posterName));
+      })) {
+        return true;
+      }
+
+      if (myCreatedPostKeywords.some(kw => kw && (itemTitle.includes(kw) || posterName.includes(kw) || (posterPhone && kw.replace(/[^0-9]/g, '') === posterPhone)))) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function isLogContactedByCurrentUser(log) {
+      if (!log) return false;
+      const custName = String(log.customerName || '').trim();
+      const custPhone = String(log.customerPhone || '').replace(/[^0-9]/g, '');
+      const logId = String(log.itemId || log.id || '').trim();
+
+      if (logId && myContactedLogIds.includes(logId)) return true;
+
+      if (posterLookupQuery) {
+        const qDigits = posterLookupQuery.replace(/[^0-9]/g, '');
+        if (custName && custName.includes(posterLookupQuery)) return true;
+        if (qDigits.length >= 4 && custPhone && custPhone.includes(qDigits)) return true;
+      }
+
+      if (currentUser && !checkIsAdmin()) {
+        const uName = String(currentUser.username || '').trim();
+        const uPhone = String(currentUser.phone || '').replace(/[^0-9]/g, '');
+        if (uName && custName && (custName.includes(uName) || uName.includes(custName))) return true;
+        if (uPhone.length >= 6 && custPhone && uPhone === custPhone) return true;
+      }
+
+      const gName = String(guestChatName || '').trim();
+      if (gName && custName && (custName.includes(gName) || gName.includes(custName))) return true;
+
+      if (myUserIdentities.some(idVal => {
+        if (!idVal) return false;
+        const digits = idVal.replace(/[^0-9]/g, '');
+        if (digits.length >= 6 && custPhone && digits === custPhone) return true;
+        return custName && (custName.includes(idVal) || idVal.includes(custName));
+      })) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function canCurrentUserViewLog(log) {
+      if (checkIsAdmin()) return true;
+      return isLogOwnedByCurrentUser(log) || isLogContactedByCurrentUser(log);
+    }
+
+    async function fetchAllDataFromSheet() {
+      try {
+        const res = await fetch(BACKEND_SYNC_URL);
+        const data = await res.json();
+        if (!data || data.status !== 'success') return;
+
+        // 1. ตลาดซื้อ-ขาย (Market)
+        if (Array.isArray(data.market)) {
+          marketListings = data.market.map((row, idx) => {
+            const crop = String(row['สินค้า'] || row['COL_1'] || '').trim();
+            const seller = String(row['ผู้ขาย'] || row['COL_3'] || '').trim();
+            const askPrice = Number(row['ราคาขาย(บาท/ตัน)'] || row['COL_8'] || 0);
+            const latestOffer = Number(row['ราคาล่าสุด(บาท/ตัน)'] || row['COL_9'] || askPrice);
+            const matchedCrop = cropsData.find(c => crop.includes(c.name.split(' ')[0]));
+            const coopMin = matchedCrop ? matchedCrop.coopMinPrice : Math.round(askPrice * 0.94);
+
+            return {
+              id: String(row['รหัส'] || row['COL_0'] || ('M0' + (idx + 1))).trim(),
+              icon: matchedCrop ? matchedCrop.icon : '🌾',
+              crop: crop,
+              location: String(row['พื้นที่'] || row['COL_2'] || 'ต.นาตาล อ.นาตาล').trim(),
+              seller: seller,
+              coordinator: String(row['ผู้ประสานงาน'] || row['COL_4'] || 'นายพิเชษฐ์ชัย ประสมพลอย').trim(),
+              phone: String(row['เบอร์ติดต่อ'] || row['COL_5'] || '062-418-1699').replace(/^'/, '').trim(),
+              gradeInfo: String(row['คุณภาพ/บรรจุภัณฑ์'] || row['COL_6'] || 'คัดเกรดมาตรฐานสหกรณ์').trim(),
+              tons: Number(row['ปริมาณ(ตัน)'] || row['COL_7'] || 0),
+              askPrice: askPrice,
+              coopMinPrice: coopMin,
+              latestOffer: latestOffer,
+              offerCount: Number(row['จำนวนข้อเสนอ'] || row['COL_10'] || 1)
+            };
+          }).filter(m => m.crop !== '' && m.seller !== '');
+
+          cropsData.forEach(c => {
+            const keyword = c.name.split(' ')[0];
+            const found = marketListings.find(m => m.crop.includes(keyword));
+            if (found && found.askPrice > 0) {
+              c.basePrice = found.askPrice;
+            }
+          });
+        }
+
+        // 2. บริการเกษตร (Services) - กรองแถวว่างออกทั้งหมด
+        if (Array.isArray(data.services)) {
+          laborProviders = data.services.map((row, idx) => {
+            const cat = String(row['ประเภทบริการ'] || row['COL_1'] || '').trim();
+            const title = String(row['ชื่อร้าน/บริการ'] || row['COL_2'] || '').trim();
+            const owner = String(row['ผู้ดูแล'] || row['COL_3'] || '').trim();
+            const nick = String(row['ชื่อเล่น'] || row['COL_4'] || '').trim();
+            const phone = String(row['เบอร์โทร'] || row['COL_5'] || '').replace(/^'/, '').trim();
+            const area = String(row['พื้นที่บริการ'] || row['COL_6'] || '').trim();
+            const rate = Number(row['ราคา'] || row['COL_7'] || 0);
+            const unit = String(row['หน่วย'] || row['COL_8'] || 'บาท/ไร่').trim();
+            const status = String(row['สถานะคิว'] || row['COL_9'] || 'พร้อมให้บริการ').trim();
+
+            let icon = '🚜';
+            if (cat.includes('เกี่ยว')) icon = '🌾';
+            else if (cat.includes('ขนส่ง')) icon = '🚚';
+            else if (cat.includes('แรงงาน') || cat.includes('กรีด')) icon = '👷';
+            else if (cat.includes('โดรน')) icon = '🚁';
+            else if (cat.includes('คัดเกรด')) icon = '📦';
+
+            return {
+              id: String(row['รหัส'] || row['COL_0'] || ('S0' + (idx + 1))).trim(),
+              icon: icon,
+              category: cat || 'บริการเกษตร',
+              name: title,
+              owner: owner,
+              nickname: nick,
+              phone: phone || '062-418-1699',
+              area: area || 'อ.นาตาล',
+              baseRate: rate,
+              unitLabel: unit,
+              status: status
+            };
+          }).filter(s => s.name !== '' && s.owner !== '');
+        }
+
+        // 3. ความคืบหน้า (ความคืบหน้า)
+        if (Array.isArray(data.progress)) {
+          activityLogs = data.progress.map((row, idx) => {
+            const refId = String(row['รหัสอ้างอิง'] || row['COL_0'] || ('PRG-' + (idx + 1))).trim();
+            const statusText = String(row['สถานะความคืบหน้า'] || row['COL_8'] || '25% รับเรื่อง/รอตรวจสอบ').trim();
+            const typeText = String(row['ประเภทรายการ'] || row['COL_2'] || 'รายงานความคืบหน้า').trim();
+            const itemNameText = String(row['ชื่อรายการ'] || row['COL_3'] || '').trim();
+            const noteText = String(row['รายละเอียดเพิ่มเติม'] || row['COL_7'] || '-').trim();
+            const isCancelled = statusText.includes('ยกเลิก');
+            let step = 1;
+            if (isCancelled) step = 0;
+            else if (statusText.includes('100%')) step = 4;
+            else if (statusText.includes('75%')) step = 3;
+            else if (statusText.includes('50%')) step = 2;
+
+            const isAck = statusText.includes('รับทราบแล้ว') || acknowledgedProgressIds.has(refId);
+            const isPosterAck = statusText.includes('คนโพสต์รับทราบแล้ว') || posterAcknowledgedIds.has(refId);
+            let cancelReason = '';
+            if (noteText.includes('เหตุผลที่ยกเลิก:')) {
+              cancelReason = noteText.split('เหตุผลที่ยกเลิก:').pop().trim();
+            }
+            const posterInfo = extractPosterInfoFromLog(typeText, itemNameText, noteText);
+
+            return {
+              id: refId,
+              itemId: refId,
+              timestamp: formatThaiDateTime(row['วัน-เวลา'] || row['COL_1']),
+              type: typeText,
+              itemName: itemNameText,
+              customerName: String(row['ชื่อผู้ติดต่อ/ผู้จอง'] || row['COL_4'] || '-').trim(),
+              customerPhone: String(row['เบอร์โทรลูกค้า'] || row['COL_5'] || '-').replace(/^'/, '').trim(),
+              value: String(row['ราคา/ปริมาณ'] || row['COL_6'] || '-').trim(),
+              note: noteText,
+              posterName: posterInfo.posterName,
+              posterPhone: posterInfo.posterPhone,
+              progressStep: step,
+              statusText: statusText,
+              isAcknowledged: isAck,
+              isPosterAcknowledged: isPosterAck,
+              isCancelled: isCancelled,
+              cancelReason: cancelReason
+            };
+          }).filter(a => a.itemName !== '' && a.itemName !== '-');
+        }
+
+        // 4. รออนุมัติ (รออนุมัติ)
+        if (Array.isArray(data.pending)) {
+          pendingApprovals = data.pending.map((row, idx) => ({
+            reqId: String(row['รหัสคำขอ'] || row['COL_0'] || ('REQ-' + (idx + 1))).trim(),
+            timestamp: formatThaiDateTime(row['วัน-เวลา'] || row['COL_1']),
+            reqType: String(row['ประเภทคำขอ'] || row['COL_2'] || 'ประกาศขายผลผลิต').trim(),
+            category: String(row['หมวดหมู่/พืช'] || row['COL_3'] || '-').trim(),
+            itemName: String(row['ชื่อรายการ/บริการ'] || row['COL_4'] || '').trim(),
+            customerName: String(row['ผู้ขอเพิ่ม/ผู้ขาย'] || row['COL_5'] || '-').trim(),
+            nickname: String(row['ชื่อเล่น'] || row['COL_6'] || '-').trim(),
+            customerPhone: String(row['เบอร์โทร'] || row['COL_7'] || '-').replace(/^'/, '').trim(),
+            area: String(row['พื้นที่'] || row['COL_8'] || 'อ.นาตาล').trim(),
+            qty: Number(row['ปริมาณ(ตัน)'] || row['COL_9'] || 0),
+            price: Number(row['ราคา(บาท)'] || row['COL_10'] || 0),
+            detail: String(row['หน่วย/รายละเอียด'] || row['COL_11'] || '-').trim(),
+            decision: String(row['สถานะอนุมัติ'] || row['COL_12'] || 'รออนุมัติ').trim()
+          })).filter(p => p.itemName !== '' && p.decision === 'รออนุมัติ');
+        }
+
+        // 5. สมาชิก & แอดมิน
+        if (Array.isArray(data.users)) {
+          registeredUsers = data.users.map(row => ({
+            username: String(row['ชื่อผู้ใช้'] || row['COL_1'] || '').trim(),
+            phone: String(row['เบอร์โทรศัพท์'] || row['COL_2'] || '').replace(/^'/, '').trim(),
+            gmail: String(row['อีเมล Gmail'] || row['COL_3'] || '').trim(),
+            role: String(row['ประเภทสมาชิก'] || row['COL_4'] || 'สมาชิกสหกรณ์').trim(),
+            password: String(row['รหัสผ่าน'] || row['COL_5'] || '').trim()
+          })).filter(u => u.username !== '');
+        }
+        if (Array.isArray(data.admins) && data.admins.length > 0) {
+          adminAccounts = data.admins.map(row => ({
+            username: String(row['ชื่อผู้ใช้แอดมิน'] || row['COL_0'] || '').trim(),
+            password: String(row['รหัสผ่าน'] || row['COL_1'] || '').trim(),
+            fullName: String(row['ชื่อ-นามสกุลผู้ดูแล'] || row['COL_2'] || 'แอดมินสหกรณ์').trim()
+          })).filter(a => a.username !== '');
+        }
+
+        // 6. แชท (แชท)
+        if (Array.isArray(data.chats)) {
+          chatMessages = data.chats.map((row, idx) => ({
+            chatId: String(row['รหัสแชท'] || row['COL_0'] || ('MSG-' + (idx + 1))).trim(),
+            timestamp: formatThaiDateTime(row['วัน-เวลา'] || row['COL_1']),
+            roomId: String(row['ห้องแชทID'] || row['COL_2'] || 'ADM_GENERAL').trim(),
+            chatType: String(row['ประเภทแชท'] || row['COL_3'] || 'แชทติดต่อแอดมิน').trim(),
+            topic: String(row['หัวข้อ/สินค้า'] || row['COL_4'] || 'สอบถามทั่วไป').trim(),
+            senderName: String(row['ผู้ส่งข้อความ'] || row['COL_5'] || 'ผู้ใช้งาน').trim(),
+            senderRole: String(row['บทบาทผู้ส่ง'] || row['COL_6'] || 'ผู้ใช้งาน').trim(),
+            message: String(row['ข้อความ'] || row['COL_7'] || '').trim(),
+            readStatus: String(row['สถานะอ่าน'] || row['COL_8'] || 'ส่งแล้ว').trim()
+          })).filter(c => c.message !== '');
+        }
+
+        // ตรวจจับรายการใหม่เพื่อเด้งแจ้งเตือนแอดมินและคนโพสต์
+        const currentAllIds = new Set([
+          ...activityLogs.map(a => String(a.itemId)),
+          ...pendingApprovals.map(p => String(p.reqId))
+        ]);
+        const currentChatSet = new Set(chatMessages.map(c => String(c.chatId)));
+
+        if (!hasInitializedActivitySnapshot) {
+          knownActivityIds = currentAllIds;
+          knownChatIds = currentChatSet;
+          hasInitializedActivitySnapshot = true;
+        } else {
+          const newlyArrivedLogs = activityLogs.filter(a => !knownActivityIds.has(String(a.itemId)));
+          const newlyArrivedPending = pendingApprovals.filter(p => !knownActivityIds.has(String(p.reqId)));
+          const newlyArrivedChats = chatMessages.filter(c => !knownChatIds.has(String(c.chatId)));
+          knownActivityIds = currentAllIds;
+          knownChatIds = currentChatSet;
+
+          if (checkIsAdmin()) {
+            if (newlyArrivedPending.length > 0) {
+              const p = newlyArrivedPending[0];
+              triggerAdminLiveAlert(`คำขอรออนุมัติ: ${p.reqType}`, `${p.itemName} (โดย: ${p.customerName} โทร. ${p.customerPhone})`, p.timestamp);
+            } else if (newlyArrivedLogs.length > 0) {
+              const l = newlyArrivedLogs[0];
+              triggerAdminLiveAlert(l.type, `${l.itemName} (โดย: ${l.customerName} โทร. ${l.customerPhone})`, l.timestamp);
+            } else if (newlyArrivedChats.length > 0 && newlyArrivedChats[0].senderRole !== 'แอดมิน') {
+              const ch = newlyArrivedChats[0];
+              triggerAdminLiveAlert(`ข้อความแชทใหม่ (${ch.chatType})`, `${ch.senderName}: "${ch.message}"`, ch.timestamp);
+            }
+          }
+
+          const newLogForPoster = newlyArrivedLogs.find(l =>
+            (l.type.includes('จองคิว') || l.type.includes('ซื้อ-ขาย')) && isLogOwnedByCurrentUser(l)
+          );
+          if (newLogForPoster) {
+            triggerPosterLiveAlert(newLogForPoster);
+          }
+        }
+      } catch (err) {
+        console.warn('Fetch sheet notice:', err);
+      } finally {
+        isInitialLoading = false;
+        refreshAllViews();
+      }
+    }
+
+    function refreshAllViews() {
+      renderCropCards();
+      populateCalculatorSelects();
+      calculateGradingRevenue();
+      calculateTradeComparison();
+      renderMarketListings(currentMarketFilter);
+      renderLabor(currentLaborFilter);
+      renderPendingApprovals();
+      renderProgressReport();
+      updateChatUnreadBadges();
+      if (activeChatRoomId && document.getElementById('item-chat-modal').classList.contains('open')) {
+        renderActiveChatMessages();
+      }
+      if (document.getElementById('chat-hub-modal').classList.contains('open')) {
+        renderChatHubList();
+      }
+    }
+
+    // =====================================================================
+    // 4. หน้า 1 & หน้า 2: แสดงราคาพืช 5 ชนิด & เครื่องคำนวณแยกเฉพาะ
+    // =====================================================================
+    function renderCropCards() {
+      const grid = document.getElementById('crop-cards-grid');
+      const tbody = document.getElementById('crop-summary-tbody');
+      if (grid) {
+        grid.innerHTML = cropsData.map(c => `
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between">
+            <div>
+              <div class="text-3xl mb-2">${c.icon}</div>
+              <h4 class="font-extrabold text-slate-900 text-base">${c.name}</h4>
+              <p class="text-xs text-slate-500 mt-0.5">${c.standard}</p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100">
+              <div class="text-[11px] text-slate-400">ราคากลางรับซื้อ</div>
+              <div class="text-xl font-extrabold text-emerald-800">${c.basePrice.toLocaleString()} <span class="text-xs font-semibold">บ./ตัน</span></div>
+              <div class="text-[11px] text-amber-700 font-bold mt-0.5">ขั้นต่ำสหกรณ์: ${c.coopMinPrice.toLocaleString()} บ./ตัน</div>
+              <span class="inline-block mt-2 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">${c.trend}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+      if (tbody) {
+        tbody.innerHTML = cropsData.map(c => `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-bold text-slate-900">${c.icon} ${c.name}</td>
+            <td class="p-3 text-slate-600">${c.standard}</td>
+            <td class="p-3 text-right font-bold text-amber-800">${c.coopMinPrice.toLocaleString()} บ./ตัน</td>
+            <td class="p-3 text-right font-extrabold text-emerald-800">${c.basePrice.toLocaleString()} บ./ตัน</td>
+            <td class="p-3 text-center">
+              <button type="button" onclick="window.setRole('calculator')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold px-3 py-1 rounded-lg">คำนวณ</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function populateCalculatorSelects() {
+      const cropSel = document.getElementById('calc-crop-select');
+      if (cropSel) {
+        const prevVal = cropSel.value;
+        cropSel.innerHTML = cropsData.map(c => `
+          <option value="${c.basePrice}">${c.icon} ${c.name} (ราคากลาง ${c.basePrice.toLocaleString()} บ./ตัน)</option>
+        `).join('');
+        if (prevVal) cropSel.value = prevVal;
+      }
+
+      const tradeSel = document.getElementById('trade-listing-select');
+      if (tradeSel) {
+        const prevIdx = tradeSel.value;
+        if (marketListings.length === 0) {
+          tradeSel.innerHTML = cropsData.map((c, idx) => `
+            <option value="crop_${idx}">${c.icon} ${c.name} (ราคากลาง ${c.basePrice.toLocaleString()} บ./ตัน)</option>
+          `).join('');
+        } else {
+          tradeSel.innerHTML = marketListings.map((m, idx) => `
+            <option value="mkt_${idx}">${m.icon} ${m.crop} - ${m.seller} (เปิด ${m.askPrice.toLocaleString()} บ./ตัน)</option>
+          `).join('');
+        }
+        if (prevIdx) tradeSel.value = prevIdx;
+      }
+    }
+
+    function calculateGradingRevenue() {
+      const base = parseFloat(document.getElementById('calc-crop-select')?.value) || 0;
+      const gradeFactor = parseFloat(document.getElementById('calc-grade-select')?.value) || 1;
+      const packBonus = parseFloat(document.getElementById('calc-pack-select')?.value) || 0;
+      const weight = parseFloat(document.getElementById('calc-weight-input')?.value) || 0;
+
+      const netPerTon = Math.round((base * gradeFactor) + packBonus);
+      const total = Math.round(netPerTon * weight);
+
+      const totalEl = document.getElementById('calc-grading-total');
+      const subEl = document.getElementById('calc-grading-sub');
+      if (totalEl) totalEl.innerText = `${total.toLocaleString()} บาท`;
+      if (subEl) subEl.innerText = `ราคาสุทธิ ${netPerTon.toLocaleString()} บาท/ตัน × ปริมาณ ${weight} ตัน`;
+    }
+    window.calculateGradingRevenue = calculateGradingRevenue;
+
+    function onSelectTradeListing() {
+      const val = document.getElementById('trade-listing-select')?.value || '';
+      if (val.startsWith('mkt_')) {
+        const idx = parseInt(val.replace('mkt_', ''), 10);
+        const item = marketListings[idx];
+        if (item) {
+          document.getElementById('trade-tons-input').value = item.tons || 10;
+          document.getElementById('trade-actual-input').value = item.latestOffer || item.askPrice;
+        }
+      } else if (val.startsWith('crop_')) {
+        const idx = parseInt(val.replace('crop_', ''), 10);
+        const crop = cropsData[idx];
+        if (crop) {
+          document.getElementById('trade-actual-input').value = crop.basePrice;
+        }
+      }
+      calculateTradeComparison();
+    }
+    window.onSelectTradeListing = onSelectTradeListing;
+
+    function calculateTradeComparison() {
+      const val = document.getElementById('trade-listing-select')?.value || '';
+      const tons = parseFloat(document.getElementById('trade-tons-input')?.value) || 0;
+      const actualPrice = parseFloat(document.getElementById('trade-actual-input')?.value) || 0;
+
+      let coopMin = 15100;
+      let sellerOpen = 15800;
+
+      if (val.startsWith('mkt_')) {
+        const idx = parseInt(val.replace('mkt_', ''), 10);
+        const item = marketListings[idx];
+        if (item) {
+          coopMin = item.coopMinPrice;
+          sellerOpen = item.askPrice;
+        }
+      } else if (val.startsWith('crop_')) {
+        const idx = parseInt(val.replace('crop_', ''), 10);
+        const crop = cropsData[idx];
+        if (crop) {
+          coopMin = crop.coopMinPrice;
+          sellerOpen = crop.basePrice;
+        }
+      }
+
+      const compCoop = document.getElementById('comp-coop-min');
+      const compOpen = document.getElementById('comp-seller-open');
+      const compAct = document.getElementById('comp-actual-price');
+      const resBox = document.getElementById('trade-comparison-result');
+
+      if (compCoop) compCoop.innerText = `${coopMin.toLocaleString()} บ.`;
+      if (compOpen) compOpen.innerText = `${sellerOpen.toLocaleString()} บ.`;
+      if (compAct) compAct.innerText = `${actualPrice.toLocaleString()} บ.`;
+
+      const totalActual = Math.round(actualPrice * tons);
+      const diffCoop = Math.round((actualPrice - coopMin) * tons);
+      const diffOpen = Math.round((actualPrice - sellerOpen) * tons);
+
+      if (resBox) {
+        resBox.innerHTML = `
+          <div class="font-extrabold text-sm text-slate-900">💵 ยอดเงินซื้อ-ขายจริงรวม: <span class="text-emerald-800 text-base">${totalActual.toLocaleString()} บาท</span> (${tons} ตัน)</div>
+          <div>• เทียบราคาขั้นต่ำสหกรณ์: <strong class="${diffCoop >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${diffCoop >= 0 ? '+' : ''}${diffCoop.toLocaleString()} บาท</strong></div>
+          <div>• เทียบราคาที่ผู้ขายเปิด: <strong class="${diffOpen >= 0 ? 'text-emerald-700' : 'text-amber-800'}">${diffOpen >= 0 ? '+' : ''}${diffOpen.toLocaleString()} บาท</strong></div>
+        `;
+      }
+    }
+    window.calculateTradeComparison = calculateTradeComparison;
+
+    // =====================================================================
+    // 5. หน้า 3: ตลาดซื้อ-ขายจริง & ต่อรองราคา & โพสต์ขาย
+    // =====================================================================
+    function filterMarket(cropKey, btnEl) {
+      currentMarketFilter = cropKey;
+      document.querySelectorAll('.mkt-filter-btn').forEach(b => {
+        b.className = 'mkt-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50';
+      });
+      if (btnEl) {
+        btnEl.className = 'mkt-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full';
+      }
+      renderMarketListings(cropKey);
+    }
+    window.filterMarket = filterMarket;
+
+    function renderMarketListings(filterKey = 'all') {
+      const grid = document.getElementById('market-listings-grid');
+      if (!grid) return;
+
+      const filtered = marketListings.map((item, idx) => ({ item, idx })).filter(({ item }) => {
+        if (filterKey === 'all') return true;
+        return item.crop.includes(filterKey);
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500 text-sm">
+            ${isInitialLoading ? '⏳ กำลังโหลดรายการซื้อ-ขายผลผลิต...' : 'ยังไม่มีประกาศจำหน่ายผลผลิตในหมวดนี้ กดปุ่ม "+ โพสต์ขายผลผลิต" เพื่อเพิ่มประกาศ'}
+          </div>
+        `;
+        return;
+      }
+
+      const isAdmin = checkIsAdmin();
+      grid.innerHTML = filtered.map(({ item, idx }) => {
+        const cleanTel = String(item.phone || '').replace(/[^0-9+]/g, '');
+        const roomId = 'MKT_' + item.id;
+        const msgCount = chatMessages.filter(c => c.roomId === roomId).length;
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center text-2xl shrink-0">${item.icon}</div>
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-base">${escapeHtmlSafe(item.crop)}</h4>
+                    <p class="text-xs text-slate-500">📍 ${escapeHtmlSafe(item.location)}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-0.5 rounded-full">🤝 สหกรณ์</span>
+                  ${isAdmin ? `<button type="button" onclick="window.adminDeleteMarketItem(${idx})" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-lg">🗑️</button>` : ''}
+                </div>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs text-slate-700 space-y-1">
+                <div><strong>ผู้ขาย:</strong> ${escapeHtmlSafe(item.seller)}</div>
+                <div>📞 <strong>เบอร์โทรติดต่อ:</strong> <a href="tel:${cleanTel}" onclick="window.triggerPhoneCall('${cleanTel}')" class="text-emerald-800 font-bold underline">${escapeHtmlSafe(item.phone)}</a></div>
+                <div><strong>คุณภาพ/บรรจุภัณฑ์:</strong> ${escapeHtmlSafe(item.gradeInfo)}</div>
+                <div><strong>ปริมาณพร้อมขาย:</strong> ${item.tons} ตัน</div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <!-- แสดงครบ 3 ราคาชัดเจน -->
+              <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-dashed border-slate-200 text-center">
+                <div class="bg-slate-50 rounded-lg p-1.5">
+                  <div class="text-[10px] text-slate-500">ขั้นต่ำสหกรณ์</div>
+                  <div class="text-xs font-extrabold text-slate-700">${item.coopMinPrice.toLocaleString()}</div>
+                </div>
+                <div class="bg-emerald-50 rounded-lg p-1.5">
+                  <div class="text-[10px] text-emerald-700">ราคาที่ผู้ขายเปิด</div>
+                  <div class="text-xs font-extrabold text-emerald-900">${item.askPrice.toLocaleString()}</div>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-1.5">
+                  <div class="text-[10px] text-amber-800">ซื้อขายจริงล่าสุด</div>
+                  <div class="text-xs font-extrabold text-amber-900">${item.latestOffer.toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="window.openNegotiateModal(${idx})" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition">
+                  🤝 ต่อรองราคา / เสนอซื้อ
+                </button>
+                <button type="button" onclick="window.openItemChatModal('market', ${idx})" class="bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs py-2.5 px-3 rounded-xl transition inline-flex items-center gap-1">
+                  <span>💬 แชท</span>
+                  ${msgCount > 0 ? `<span class="bg-rose-600 text-white text-[10px] px-1.5 rounded-full">${msgCount}</span>` : ''}
+                </button>
+                <a href="tel:${cleanTel}" onclick="window.triggerPhoneCall('${cleanTel}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+                  📞 โทร
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function togglePostModal(show) {
+      const modal = document.getElementById('post-modal');
+      if (!modal) return;
+      if (show) {
+        document.getElementById('post-crop-form').reset();
+        document.getElementById('post-seller').value = '';
+        document.getElementById('post-phone').value = '';
+        document.getElementById('post-crop').value = '';
+        document.getElementById('post-qty').value = '';
+        document.getElementById('post-price').value = '';
+        document.getElementById('post-area').value = '';
+        document.getElementById('post-grade').value = '';
+        modal.classList.add('open');
+      } else {
+        modal.classList.remove('open');
+      }
+    }
+    window.togglePostModal = togglePostModal;
+
+    function handlePostCropSubmit(e) {
+      e.preventDefault();
+      const seller = document.getElementById('post-seller').value.trim();
+      const phone = document.getElementById('post-phone').value.trim();
+      const crop = document.getElementById('post-crop').value;
+      const qty = parseFloat(document.getElementById('post-qty').value) || 0;
+      const price = parseFloat(document.getElementById('post-price').value) || 0;
+      const area = document.getElementById('post-area').value;
+      const gradeInfo = document.getElementById('post-grade').value.trim();
+      const nowStr = new Date().toLocaleString('th-TH');
+
+      const matchedCrop = cropsData.find(c => crop.includes(c.name.split(' ')[0]));
+      const coopMin = matchedCrop ? matchedCrop.coopMinPrice : Math.round(price * 0.94);
+
+      if (checkIsAdmin()) {
+        const newCode = 'M' + Date.now().toString().slice(-4);
+        marketListings.unshift({
+          id: newCode,
+          icon: matchedCrop ? matchedCrop.icon : '🌾',
+          crop: crop,
+          location: `${area} อ.นาตาล`,
+          seller: seller,
+          coordinator: 'นายพิเชษฐ์ชัย ประสมพลอย',
+          phone: phone,
+          gradeInfo: gradeInfo,
+          tons: qty,
+          askPrice: price,
+          coopMinPrice: coopMin,
+          latestOffer: price,
+          offerCount: 1
+        });
+        recordMyCreatedPost(seller);
+        recordMyCreatedPost(phone);
+        recordMyCreatedPost(`${crop} (${qty} ตัน)`);
+        recordMyIdentity(seller, phone);
+        togglePostModal(false);
+        refreshAllViews();
+
+        syncPayloadToGSheet({
+          action: 'addMarket',
+          timestamp: nowStr,
+          itemId: newCode,
+          itemName: crop,
+          customerName: seller,
+          customerPhone: phone,
+          location: `${area} อ.นาตาล`,
+          quality: gradeInfo,
+          qty: qty,
+          price: price,
+          statusText: '50% ยืนยันคิว/ตกลงราคาแล้ว'
+        });
+        showToast('✅ แอดมินเพิ่มประกาศขายขึ้นหน้าเว็บไซต์เรียบร้อยแล้ว!');
+      } else {
+        const reqId = 'REQ-' + Date.now().toString().slice(-4);
+        pendingApprovals.unshift({
+          reqId: reqId,
+          timestamp: nowStr,
+          reqType: 'ประกาศขายผลผลิต',
+          category: crop,
+          itemName: `${crop} (${qty} ตัน)`,
+          customerName: seller,
+          nickname: '-',
+          customerPhone: phone,
+          area: `${area} อ.นาตาล`,
+          qty: qty,
+          price: price,
+          detail: gradeInfo,
+          decision: 'รออนุมัติ'
+        });
+
+        activityLogs.unshift({
+          id: reqId,
+          itemId: reqId,
+          timestamp: nowStr,
+          type: 'รออนุมัติ: ประกาศขายผลผลิต',
+          itemName: `${crop} (${qty} ตัน)`,
+          customerName: seller,
+          customerPhone: phone,
+          value: `${price.toLocaleString()} บาท/ตัน`,
+          note: `พื้นที่: ${area} อ.นาตาล | คุณภาพ: ${gradeInfo}`,
+          posterName: seller,
+          posterPhone: phone,
+          progressStep: 1,
+          statusText: '25% รับเรื่อง/รอตรวจสอบ'
+        });
+
+        recordMyCreatedPost(seller);
+        recordMyCreatedPost(phone);
+        recordMyCreatedPost(`${crop} (${qty} ตัน)`);
+        recordMyIdentity(seller, phone);
+        togglePostModal(false);
+        refreshAllViews();
+
+        syncPayloadToGSheet({
+          action: 'submitPending',
+          timestamp: nowStr,
+          itemId: reqId,
+          reqType: 'ประกาศขายผลผลิต',
+          crop: crop,
+          itemName: `${crop} (${qty} ตัน)`,
+          displayTitle: `${crop} (${qty} ตัน)`,
+          customerName: seller,
+          customerPhone: phone,
+          area: `${area} อ.นาตาล`,
+          qty: qty,
+          price: price,
+          detail: gradeInfo,
+          value: `${price.toLocaleString()} บาท/ตัน`,
+          note: `พื้นที่: ${area} อ.นาตาล | คุณภาพ: ${gradeInfo}`
+        });
+        showToast('⏳ ส่งประกาศขายผลผลิตแล้ว! รอแอดมินอนุมัติก่อนแสดงขึ้นหน้าเว็บไซต์');
+      }
+    }
+    window.handlePostCropSubmit = handlePostCropSubmit;
+
+    function openNegotiateModal(idx) {
+      const item = marketListings[idx];
+      if (!item) return;
+      document.getElementById('negotiate-form').reset();
+      document.getElementById('neg-item-index').value = idx;
+      document.getElementById('neg-buyer-name').value = currentUser ? currentUser.username : '';
+      document.getElementById('neg-buyer-phone').value = currentUser ? (currentUser.phone || '') : '';
+      document.getElementById('neg-offer-price').value = '';
+      document.getElementById('neg-note').value = '';
+
+      document.getElementById('neg-modal-title').innerText = `ต่อรองราคา: ${item.crop} (${item.tons} ตัน)`;
+      document.getElementById('neg-summary-box').innerHTML = `
+        <div><strong>ผู้ประกาศขาย:</strong> ${escapeHtmlSafe(item.seller)} (${escapeHtmlSafe(item.phone)})</div>
+        <div class="flex justify-between"><span>ราคาที่ผู้ขายเปิด:</span><strong class="text-emerald-800">${item.askPrice.toLocaleString()} บาท/ตัน</strong></div>
+        <div class="flex justify-between"><span>กรอบราคาขั้นต่ำสหกรณ์:</span><strong class="text-amber-800">${item.coopMinPrice.toLocaleString()} บาท/ตัน</strong></div>
+        <div class="flex justify-between"><span>ราคาซื้อขายจริงล่าสุด:</span><strong class="text-slate-900">${item.latestOffer.toLocaleString()} บาท/ตัน</strong></div>
+      `;
+      document.getElementById('negotiate-modal').classList.add('open');
+    }
+    window.openNegotiateModal = openNegotiateModal;
+
+    function closeNegotiateModal() {
+      document.getElementById('negotiate-modal').classList.remove('open');
+    }
+    window.closeNegotiateModal = closeNegotiateModal;
+
+    function checkFairOfferPrice() {
+      const idx = parseInt(document.getElementById('neg-item-index').value, 10);
+      const item = marketListings[idx];
+      const statusEl = document.getElementById('neg-fair-status');
+      if (!item || !statusEl) return;
+      const val = parseFloat(document.getElementById('neg-offer-price').value);
+      if (isNaN(val)) {
+        statusEl.innerText = '✅ กรุณาระบุราคาที่อยู่ในกรอบการต่อรองที่เป็นธรรมแก่ทั้งสองฝ่าย';
+        statusEl.className = 'text-xs font-bold text-emerald-700 mt-1';
+      } else if (val < item.coopMinPrice) {
+        statusEl.innerText = `⚠️ ราคาต่ำกว่ากรอบขั้นต่ำสหกรณ์ (${item.coopMinPrice.toLocaleString()} บาท/ตัน)`;
+        statusEl.className = 'text-xs font-bold text-rose-600 mt-1';
+      } else {
+        statusEl.innerText = '✅ ราคานี้อยู่ในกรอบการต่อรองที่เป็นธรรมแก่ทั้งสองฝ่าย';
+        statusEl.className = 'text-xs font-bold text-emerald-700 mt-1';
+      }
+    }
+    window.checkFairOfferPrice = checkFairOfferPrice;
+
+    function handleNegotiateSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById('neg-item-index').value, 10);
+      const item = marketListings[idx];
+      if (!item) return;
+
+      const buyerName = document.getElementById('neg-buyer-name').value.trim();
+      const buyerPhone = document.getElementById('neg-buyer-phone').value.trim();
+      const offerPrice = parseFloat(document.getElementById('neg-offer-price').value) || item.askPrice;
+      const note = document.getElementById('neg-note').value.trim() || '-';
+      const nowStr = new Date().toLocaleString('th-TH');
+      const progId = 'PRG-' + Date.now().toString().slice(-4);
+      const formattedNote = `ผู้ขาย: ${item.seller} (${item.phone}) | เงื่อนไข: ${note}`;
+
+      item.latestOffer = offerPrice;
+      item.offerCount += 1;
+
+      activityLogs.unshift({
+        id: progId,
+        itemId: progId,
+        timestamp: nowStr,
+        type: 'ต่อรองราคาซื้อ-ขาย',
+        itemName: `${item.crop} (${item.tons} ตัน)`,
+        customerName: buyerName,
+        customerPhone: buyerPhone,
+        value: `${offerPrice.toLocaleString()} บาท/ตัน`,
+        note: formattedNote,
+        posterName: item.seller,
+        posterPhone: item.phone,
+        progressStep: 2,
+        statusText: '50% ยืนยันคิว/ตกลงราคาแล้ว'
+      });
+
+      recordMyContactedLog(progId);
+      recordMyIdentity(buyerName, buyerPhone);
+      closeNegotiateModal();
+      refreshAllViews();
+
+      syncPayloadToGSheet({
+        action: 'negotiate',
+        timestamp: nowStr,
+        progId: progId,
+        itemId: item.id,
+        ownerName: item.seller,
+        ownerPhone: item.phone,
+        itemName: `${item.crop} (${item.tons} ตัน)`,
+        customerName: buyerName,
+        customerPhone: buyerPhone,
+        offerPrice: offerPrice,
+        value: `${offerPrice.toLocaleString()} บาท/ตัน`,
+        note: formattedNote,
+        statusText: '50% ยืนยันคิว/ตกลงราคาแล้ว'
+      });
+
+      showToast(`✅ ส่งข้อเสนอต่อรองราคา และแจ้งเตือนความคืบหน้าไปยังคนโพสต์ (${item.seller}) เรียบร้อยแล้ว!`);
+    }
+    window.handleNegotiateSubmit = handleNegotiateSubmit;
+
+    function adminDeleteMarketItem(idx) {
+      const item = marketListings[idx];
+      if (!item) return;
+      marketListings.splice(idx, 1);
+      refreshAllViews();
+      syncPayloadToGSheet({ action: 'deleteRow', sheetName: 'Market', itemId: item.id });
+      showToast('🗑️ ลบประกาศขายออกจากเว็บไซต์เรียบร้อยแล้ว');
+    }
+    window.adminDeleteMarketItem = adminDeleteMarketItem;
+
+    // =====================================================================
+    // 6. หน้า 4: บริการเกษตร & จองคิวเลือกวัน
+    // =====================================================================
+    function filterLabor(catKey, btnEl) {
+      currentLaborFilter = catKey;
+      document.querySelectorAll('.svc-filter-btn').forEach(b => {
+        b.className = 'svc-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-1.5 rounded-full hover:bg-slate-50';
+      });
+      if (btnEl) {
+        btnEl.className = 'svc-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-full';
+      }
+      renderLabor(catKey);
+    }
+    window.filterLabor = filterLabor;
+
+    function renderLabor(filterKey = 'all') {
+      const grid = document.getElementById('labor-providers-grid');
+      if (!grid) return;
+
+      const filtered = laborProviders.map((svc, idx) => ({ svc, idx })).filter(({ svc }) => {
+        if (filterKey === 'all') return true;
+        return svc.category.includes(filterKey) || svc.name.includes(filterKey);
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500 text-sm">
+            ${isInitialLoading ? '⏳ กำลังโหลดข้อมูลบริการเกษตร...' : 'ยังไม่มีรายการบริการในหมวดนี้ กดปุ่ม "+ เพิ่มบริการเกษตร" เพื่อเพิ่มข้อมูล'}
+          </div>
+        `;
+        return;
+      }
+
+      const isAdmin = checkIsAdmin();
+      grid.innerHTML = filtered.map(({ svc, idx }) => {
+        const cleanTel = String(svc.phone || '').replace(/[^0-9+]/g, '');
+        const roomId = 'SVC_' + svc.id;
+        const msgCount = chatMessages.filter(c => c.roomId === roomId).length;
+
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center text-2xl shrink-0">${svc.icon}</div>
+                  <div>
+                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${escapeHtmlSafe(svc.category)}</span>
+                    <h4 class="font-extrabold text-slate-900 text-sm sm:text-base mt-0.5">${escapeHtmlSafe(svc.name)}</h4>
+                  </div>
+                </div>
+                ${isAdmin ? `<button type="button" onclick="window.adminDeleteServiceItem(${idx})" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-2 py-0.5 rounded-lg">🗑️</button>` : ''}
+              </div>
+
+              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs text-slate-700 space-y-1">
+                <div>👤 <strong>ผู้ให้บริการ:</strong> ${escapeHtmlSafe(svc.owner)} ${svc.nickname && svc.nickname !== '-' ? `(${escapeHtmlSafe(svc.nickname)})` : ''}</div>
+                <div>📞 <strong>เบอร์โทรศัพท์:</strong> <a href="tel:${cleanTel}" onclick="window.triggerPhoneCall('${cleanTel}')" class="text-emerald-800 font-bold underline">${escapeHtmlSafe(svc.phone)}</a></div>
+                <div>📍 <strong>พื้นที่บริการ:</strong> ${escapeHtmlSafe(svc.area)}</div>
+                <div class="pt-1 border-t border-slate-200 text-emerald-800 font-bold">● ${escapeHtmlSafe(svc.status)}</div>
+              </div>
+            </div>
+
+            <div class="space-y-2.5 pt-2 border-t border-slate-100">
+              <div class="flex items-baseline justify-between">
+                <span class="text-xs text-slate-500">อัตราค่าบริการ</span>
+                <span class="text-lg font-extrabold text-emerald-900">${Number(svc.baseRate).toLocaleString()} <span class="text-xs font-semibold">${escapeHtmlSafe(svc.unitLabel)}</span></span>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="window.openBookModal(${idx})" class="flex-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-xs py-2.5 px-3 rounded-xl transition">
+                  📅 จองคิวเลือกวัน
+                </button>
+                <button type="button" onclick="window.openItemChatModal('service', ${idx})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-xs py-2.5 px-3 rounded-xl transition inline-flex items-center gap-1">
+                  <span>💬 แชท</span>
+                  ${msgCount > 0 ? `<span class="bg-rose-600 text-white text-[10px] px-1.5 rounded-full">${msgCount}</span>` : ''}
+                </button>
+                <a href="tel:${cleanTel}" onclick="window.triggerPhoneCall('${cleanTel}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+                  📞 โทร
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleAddServiceModal(show) {
+      const modal = document.getElementById('add-service-modal');
+      if (!modal) return;
+      if (show) {
+        document.getElementById('add-service-form').reset();
+        modal.classList.add('open');
+      } else {
+        modal.classList.remove('open');
+      }
+    }
+    window.toggleAddServiceModal = toggleAddServiceModal;
+
+    function handleAddServiceSubmit(e) {
+      e.preventDefault();
+      const sCat = document.getElementById('svc-cat').value.trim();
+      const sName = document.getElementById('svc-name').value.trim();
+      const sOwner = document.getElementById('svc-owner').value.trim();
+      const sNick = document.getElementById('svc-nick').value.trim() || '-';
+      const sPhone = document.getElementById('svc-phone').value.trim();
+      const sArea = document.getElementById('svc-area').value.trim();
+      const sRate = parseFloat(document.getElementById('svc-rate').value) || 0;
+      const sUnit = document.getElementById('svc-unit').value.trim();
+      const nowStr = new Date().toLocaleString('th-TH');
+
+      if (checkIsAdmin()) {
+        const newCode = 'S' + Date.now().toString().slice(-4);
+        laborProviders.unshift({
+          id: newCode,
+          icon: '🚜',
+          category: sCat,
+          name: sName,
+          owner: sOwner,
+          nickname: sNick,
+          phone: sPhone,
+          area: sArea,
+          baseRate: sRate,
+          unitLabel: sUnit,
+          status: 'พร้อมให้บริการ'
+        });
+        recordMyCreatedPost(sOwner);
+        recordMyCreatedPost(sPhone);
+        recordMyCreatedPost(sName);
+        recordMyIdentity(sOwner, sPhone);
+        toggleAddServiceModal(false);
+        refreshAllViews();
+
+        syncPayloadToGSheet({
+          action: 'addService',
+          timestamp: nowStr,
+          itemId: newCode,
+          category: sCat,
+          itemName: sName,
+          customerName: sOwner,
+          nickname: sNick,
+          customerPhone: sPhone,
+          area: sArea,
+          price: sRate,
+          unit: sUnit,
+          status: 'พร้อมให้บริการ'
+        });
+        showToast('✅ แอดมินเพิ่มบริการเกษตรขึ้นหน้าเว็บไซต์เรียบร้อยแล้ว!');
+      } else {
+        const reqId = 'REQ-' + Date.now().toString().slice(-4);
+        pendingApprovals.unshift({
+          reqId: reqId,
+          timestamp: nowStr,
+          reqType: 'เพิ่มบริการเกษตร',
+          category: sCat,
+          itemName: sName,
+          customerName: sOwner,
+          nickname: sNick,
+          customerPhone: sPhone,
+          area: sArea,
+          qty: 0,
+          price: sRate,
+          detail: sUnit,
+          decision: 'รออนุมัติ'
+        });
+
+        activityLogs.unshift({
+          id: reqId,
+          itemId: reqId,
+          timestamp: nowStr,
+          type: 'รออนุมัติ: เพิ่มบริการเกษตร',
+          itemName: sName,
+          customerName: sOwner,
+          customerPhone: sPhone,
+          value: `${sRate.toLocaleString()} ${sUnit}`,
+          note: `พื้นที่บริการ: ${sArea}`,
+          posterName: sOwner,
+          posterPhone: sPhone,
+          progressStep: 1,
+          statusText: '25% รับเรื่อง/รอตรวจสอบ'
+        });
+
+        recordMyCreatedPost(sOwner);
+        recordMyCreatedPost(sPhone);
+        recordMyCreatedPost(sName);
+        recordMyIdentity(sOwner, sPhone);
+        toggleAddServiceModal(false);
+        refreshAllViews();
+
+        syncPayloadToGSheet({
+          action: 'submitPending',
+          timestamp: nowStr,
+          itemId: reqId,
+          reqType: 'เพิ่มบริการเกษตร',
+          category: sCat,
+          itemName: sName,
+          displayTitle: sName,
+          customerName: sOwner,
+          nickname: sNick,
+          customerPhone: sPhone,
+          area: sArea,
+          price: sRate,
+          detail: sUnit,
+          value: `${sRate.toLocaleString()} ${sUnit}`,
+          note: `พื้นที่บริการ: ${sArea}`
+        });
+        showToast('⏳ ส่งข้อมูลบริการเกษตรแล้ว! รอแอดมินอนุมัติก่อนแสดงขึ้นหน้าเว็บไซต์');
+      }
+    }
+    window.handleAddServiceSubmit = handleAddServiceSubmit;
+
+    function formatThaiBookingDate(isoDate) {
+      if (!isoDate) return '';
+      const parts = isoDate.split('-');
+      if (parts.length !== 3) return isoDate;
+      const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+      const d = parseInt(parts[2], 10);
+      const m = thaiMonths[parseInt(parts[1], 10) - 1] || parts[1];
+      const y = parseInt(parts[0], 10) + 543;
+      return `${d} ${m} ${y}`;
+    }
+
+    function openBookModal(idx) {
+      const svc = laborProviders[idx];
+      if (!svc) return;
+      document.getElementById('book-form').reset();
+      document.getElementById('book-svc-index').value = idx;
+      document.getElementById('book-cust-name').value = currentUser ? currentUser.username : '';
+      document.getElementById('book-cust-phone').value = currentUser ? (currentUser.phone || '') : '';
+
+      const dateInput = document.getElementById('book-date');
+      const todayIso = new Date().toISOString().split('T')[0];
+      if (dateInput) {
+        dateInput.min = todayIso;
+        dateInput.value = todayIso;
+      }
+
+      document.getElementById('book-modal-title').innerText = `📅 จองคิวเลือกวัน: ${svc.name}`;
+      document.getElementById('book-summary-box').innerHTML = `
+        <div><strong>ผู้ให้บริการ:</strong> ${escapeHtmlSafe(svc.owner)} (${escapeHtmlSafe(svc.phone)})</div>
+        <div><strong>อัตราค่าบริการ:</strong> <span class="text-emerald-800 font-bold">${Number(svc.baseRate).toLocaleString()} ${escapeHtmlSafe(svc.unitLabel)}</span></div>
+        <div><strong>สถานะปัจจุบัน:</strong> ${escapeHtmlSafe(svc.status)}</div>
+      `;
+      checkBookingDateAvailability();
+      document.getElementById('book-modal').classList.add('open');
+    }
+    window.openBookModal = openBookModal;
+
+    function closeBookModal() {
+      document.getElementById('book-modal').classList.remove('open');
+    }
+    window.closeBookModal = closeBookModal;
+
+    function checkBookingDateAvailability() {
+      const idx = parseInt(document.getElementById('book-svc-index')?.value, 10);
+      const svc = laborProviders[idx];
+      const isoDate = document.getElementById('book-date')?.value;
+      const statusEl = document.getElementById('book-date-status');
+      if (!svc || !isoDate || !statusEl) return;
+
+      const thaiDate = formatThaiBookingDate(isoDate);
+      const alreadyBooked = activityLogs.some(a =>
+        !a.isCancelled && a.itemName.includes(svc.name) && a.itemName.includes(thaiDate)
+      );
+      if (alreadyBooked) {
+        statusEl.innerText = `⚠️ วันที่ ${thaiDate} มีผู้จองคิวในระบบแล้ว (สามารถจองต่อคิวช่วงเวลาอื่นได้)`;
+        statusEl.className = 'text-xs font-bold text-amber-700';
+      } else {
+        statusEl.innerText = `✅ วันที่ ${thaiDate} คิวว่างพร้อมรับงาน`;
+        statusEl.className = 'text-xs font-bold text-emerald-700';
+      }
+    }
+    window.checkBookingDateAvailability = checkBookingDateAvailability;
+
+    function handleBookSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById('book-svc-index').value, 10);
+      const svc = laborProviders[idx];
+      if (!svc) return;
+
+      const custName = document.getElementById('book-cust-name').value.trim();
+      const custPhone = document.getElementById('book-cust-phone').value.trim();
+      const isoDate = document.getElementById('book-date').value;
+      const timeSlot = document.getElementById('book-time-slot').value;
+      const amount = document.getElementById('book-amount').value.trim();
+      const note = document.getElementById('book-note').value.trim();
+      const thaiDate = formatThaiBookingDate(isoDate);
+      const nowStr = new Date().toLocaleString('th-TH');
+      const progId = 'PRG-' + Date.now().toString().slice(-4);
+
+      const fullBookingTitle = `${svc.name} | วันที่ ${thaiDate} (${amount})`;
+      const fullNote = `ผู้ดูแลบริการ: ${svc.owner} (${svc.phone}) | นัดหมายวันที่ ${thaiDate} ${timeSlot} | พิกัด: ${note}`;
+
+      svc.status = `จองคิววันที่ ${thaiDate} โดย คุณ${custName}`;
+      activityLogs.unshift({
+        id: progId,
+        itemId: progId,
+        timestamp: nowStr,
+        type: 'จองคิวบริการเกษตร',
+        itemName: fullBookingTitle,
+        customerName: custName,
+        customerPhone: custPhone,
+        value: `${amount} (${Number(svc.baseRate).toLocaleString()} ${svc.unitLabel})`,
+        note: fullNote,
+        posterName: svc.owner,
+        posterPhone: svc.phone,
+        progressStep: 2,
+        statusText: '50% ยืนยันคิว/ตกลงราคาแล้ว'
+      });
+
+      recordMyContactedLog(progId);
+      recordMyIdentity(custName, custPhone);
+      closeBookModal();
+      refreshAllViews();
+
+      syncPayloadToGSheet({
+        action: 'bookService',
+        timestamp: nowStr,
+        progId: progId,
+        itemId: svc.id,
+        ownerName: svc.owner,
+        ownerPhone: svc.phone,
+        bookingDate: thaiDate,
+        itemName: fullBookingTitle,
+        customerName: custName,
+        customerPhone: custPhone,
+        value: `${amount} (${Number(svc.baseRate).toLocaleString()} ${svc.unitLabel})`,
+        note: fullNote,
+        statusText: '50% ยืนยันคิว/ตกลงราคาแล้ว'
+      });
+
+      showToast(`✅ จองคิววันที่ ${thaiDate} และส่งแจ้งเตือนความคืบหน้าไปยังคนโพสต์ (${svc.owner}) เรียบร้อยแล้ว!`);
+    }
+    window.handleBookSubmit = handleBookSubmit;
+
+    function adminDeleteServiceItem(idx) {
+      const svc = laborProviders[idx];
+      if (!svc) return;
+      laborProviders.splice(idx, 1);
+      refreshAllViews();
+      syncPayloadToGSheet({ action: 'deleteRow', sheetName: 'Services', itemId: svc.id });
+      showToast('🗑️ ลบข้อมูลบริการออกจากเว็บไซต์เรียบร้อยแล้ว');
+    }
+    window.adminDeleteServiceItem = adminDeleteServiceItem;
+
+    // =====================================================================
+    // 7. หน้า 5: รายงานความคืบหน้า + อนุมัติ + รับทราบ 100% + แจ้งเตือนคนโพสต์
+    // =====================================================================
+    function renderPendingApprovals() {
+      const sec = document.getElementById('admin-pending-section');
+      const listEl = document.getElementById('pending-approvals-list');
+      if (!sec || !listEl) return;
+
+      if (!checkIsAdmin() || pendingApprovals.length === 0) {
+        sec.classList.add('hidden');
+        return;
+      }
+
+      sec.classList.remove('hidden');
+      listEl.innerHTML = pendingApprovals.map((p, idx) => `
+        <div class="bg-white rounded-xl border border-amber-300 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full">${escapeHtmlSafe(p.reqType)}</span>
+              <strong class="text-sm text-slate-900">${escapeHtmlSafe(p.itemName)}</strong>
+            </div>
+            <div class="text-slate-600">👤 ผู้ขอ: <strong>${escapeHtmlSafe(p.customerName)}</strong> (${escapeHtmlSafe(p.customerPhone)}) | 📍 ${escapeHtmlSafe(p.area)} | 💰 ${Number(p.price).toLocaleString()} บาท</div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="window.approvePendingItem(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl">✅ อนุมัติขึ้นเว็บไซต์</button>
+            <button type="button" onclick="window.rejectPendingItem(${idx})" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-2 rounded-xl">❌ ไม่อนุมัติ</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function approvePendingItem(idx) {
+      const p = pendingApprovals[idx];
+      if (!p) return;
+      pendingApprovals.splice(idx, 1);
+
+      if (p.reqType === 'ประกาศขายผลผลิต') {
+        const matchedCrop = cropsData.find(c => p.category.includes(c.name.split(' ')[0]));
+        marketListings.unshift({
+          id: 'M' + Date.now().toString().slice(-4),
+          icon: matchedCrop ? matchedCrop.icon : '🌾',
+          crop: p.category,
+          location: p.area,
+          seller: p.customerName,
+          coordinator: 'นายพิเชษฐ์ชัย ประสมพลอย',
+          phone: p.customerPhone,
+          gradeInfo: p.detail,
+          tons: p.qty,
+          askPrice: p.price,
+          coopMinPrice: matchedCrop ? matchedCrop.coopMinPrice : Math.round(p.price * 0.94),
+          latestOffer: p.price,
+          offerCount: 1
+        });
+      } else {
+        laborProviders.unshift({
+          id: 'S' + Date.now().toString().slice(-4),
+          icon: '🚜',
+          category: p.category,
+          name: p.itemName,
+          owner: p.customerName,
+          nickname: p.nickname,
+          phone: p.customerPhone,
+          area: p.area,
+          baseRate: p.price,
+          unitLabel: p.detail,
+          status: 'พร้อมให้บริการ'
+        });
+      }
+
+      const log = activityLogs.find(a => a.itemId === p.reqId);
+      if (log) {
+        log.progressStep = 2;
+        log.statusText = '50% ยืนยันคิว/ตกลงราคาแล้ว';
+      }
+
+      refreshAllViews();
+      syncPayloadToGSheet({
+        action: 'approvePending',
+        itemId: p.reqId,
+        reqType: p.reqType,
+        category: p.category,
+        itemName: p.itemName,
+        customerName: p.customerName,
+        nickname: p.nickname,
+        customerPhone: p.customerPhone,
+        area: p.area,
+        qty: p.qty,
+        price: p.price,
+        detail: p.detail
+      });
+      showToast('✅ อนุมัติรายการขึ้นหน้าเว็บไซต์เรียบร้อยแล้ว!');
+    }
+    window.approvePendingItem = approvePendingItem;
+
+    function rejectPendingItem(idx) {
+      const p = pendingApprovals[idx];
+      if (!p) return;
+      pendingApprovals.splice(idx, 1);
+      activityLogs = activityLogs.filter(a => a.itemId !== p.reqId);
+      refreshAllViews();
+      syncPayloadToGSheet({ action: 'rejectPending', itemId: p.reqId });
+      showToast('❌ ปฏิเสธคำขอและลบรายการออกแล้ว');
+    }
+    window.rejectPendingItem = rejectPendingItem;
+
+    function setProgressFilter(filterKey) {
+      currentProgressFilter = filterKey;
+      ['all', 'my_posts', 'my_contacts', 'market', 'service'].forEach(k => {
+        const btn = document.getElementById('prog-filter-' + k);
+        if (!btn) return;
+        const isHidden = btn.classList.contains('hidden');
+        btn.className = (k === filterKey
+          ? 'prog-filter-btn bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-full'
+          : 'prog-filter-btn bg-white text-slate-700 border border-slate-200 text-xs font-bold px-3.5 py-2 rounded-full hover:bg-slate-50') + (isHidden ? ' hidden' : '');
+      });
+      renderProgressReport();
+    }
+    window.setProgressFilter = setProgressFilter;
+
+    function renderProgressReport() {
+      const totalEl = document.getElementById('stat-total');
+      const waitEl = document.getElementById('stat-waiting');
+      const activeEl = document.getElementById('stat-active');
+      const doneEl = document.getElementById('stat-done');
+      const container = document.getElementById('progress-list-container');
+      const navBadge = document.getElementById('poster-progress-badge');
+      const posterBannerBadge = document.getElementById('poster-banner-badge');
+      const posterBannerCount = document.getElementById('poster-banner-count');
+      const loginBtn = document.getElementById('progress-login-btn');
+      const scopeDesc = document.getElementById('privacy-scope-desc');
+      const mktFilterBtn = document.getElementById('prog-filter-market');
+      const svcFilterBtn = document.getElementById('prog-filter-service');
+
+      const isAdmin = checkIsAdmin();
+
+      // แสดงปุ่มกรองหมวดหมู่ทั้งหมดเฉพาะแอดมิน ส่วนผู้ใช้ทั่วไปเห็นเฉพาะแท็บคนโพสต์และคนติดต่อ
+      if (mktFilterBtn && svcFilterBtn) {
+        if (isAdmin) {
+          mktFilterBtn.classList.remove('hidden');
+          svcFilterBtn.classList.remove('hidden');
+        } else {
+          mktFilterBtn.classList.add('hidden');
+          svcFilterBtn.classList.add('hidden');
+        }
+      }
+
+      if (loginBtn && scopeDesc) {
+        if (isAdmin) {
+          loginBtn.classList.add('hidden');
+          scopeDesc.innerHTML = '🛡️ <strong>โหมดผู้ดูแลระบบ (แอดมิน):</strong> คุณสามารถตรวจสอบรายการความคืบหน้าทั้งหมดของสมาชิกได้ทุกรายการ';
+        } else if (currentUser) {
+          loginBtn.classList.add('hidden');
+          scopeDesc.innerHTML = `🔒 กำลังแสดงรายการความคืบหน้าเฉพาะของบัญชี <strong>${escapeHtmlSafe(currentUser.username)}</strong> (ในฐานะคนโพสต์และคนติดต่อเท่านั้น)`;
+        } else {
+          loginBtn.classList.remove('hidden');
+          scopeDesc.innerHTML = 'ระบบแยกสิทธิ์การมองเห็น: คุณจะเห็นเฉพาะรายการที่คุณเป็น <strong>"คนโพสต์"</strong> หรือ <strong>"คนติดต่อทำรายการ"</strong> เท่านั้น (บุคคลอื่นจะไม่สามารถเห็นรายการของคุณ)';
+        }
+      }
+
+      // กรองสิทธิ์การเข้าถึง: ให้เห็นเฉพาะคนโพสต์กับคนติดต่อ (และแอดมิน)
+      const accessibleLogs = activityLogs
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => canCurrentUserViewLog(item));
+
+      const totalCount = accessibleLogs.length;
+      const waitCount = accessibleLogs.filter(({ item }) => !item.isCancelled && item.progressStep === 1).length;
+      const activeCount = accessibleLogs.filter(({ item }) => !item.isCancelled && (item.progressStep === 2 || item.progressStep === 3)).length;
+      const doneCount = accessibleLogs.filter(({ item }) => !item.isCancelled && item.progressStep === 4).length;
+
+      if (totalEl) totalEl.innerText = `${totalCount} รายการ`;
+      if (waitEl) waitEl.innerText = `${waitCount} รายการ`;
+      if (activeEl) activeEl.innerText = `${activeCount} รายการ`;
+      if (doneEl) doneEl.innerText = `${doneCount} รายการ`;
+
+      const myPostLogs = accessibleLogs.filter(({ item }) =>
+        !item.isCancelled && (item.type.includes('จองคิว') || item.type.includes('ซื้อ-ขาย')) && isLogOwnedByCurrentUser(item)
+      );
+      const unackMyPostCount = myPostLogs.filter(({ item }) =>
+        !item.isPosterAcknowledged && !posterAcknowledgedIds.has(String(item.itemId))
+      ).length;
+
+      if (navBadge) {
+        if (unackMyPostCount > 0) {
+          navBadge.innerText = unackMyPostCount;
+          navBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+        }
+      }
+      if (posterBannerBadge && posterBannerCount) {
+        if (unackMyPostCount > 0) {
+          posterBannerCount.innerText = unackMyPostCount;
+          posterBannerBadge.classList.remove('hidden');
+        } else {
+          posterBannerBadge.classList.add('hidden');
+        }
+      }
+
+      if (!container) return;
+      const filteredLogs = accessibleLogs.filter(({ item }) => {
+        if (currentProgressFilter === 'my_posts') return isLogOwnedByCurrentUser(item);
+        if (currentProgressFilter === 'my_contacts') return isLogContactedByCurrentUser(item);
+        if (currentProgressFilter === 'market') return item.type.includes('ซื้อ-ขาย') || item.type.includes('ขายผลผลิต');
+        if (currentProgressFilter === 'service') return item.type.includes('บริการ');
+        return true;
+      });
+
+      if (filteredLogs.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
+            <div class="text-2xl">🔒</div>
+            <div class="font-extrabold text-slate-800 text-sm">
+              ${isInitialLoading ? '⏳ กำลังโหลดรายงานความคืบหน้า...' : 'ไม่พบรายการความคืบหน้าที่เกี่ยวข้องกับบัญชีของคุณในหมวดหมู่นี้'}
+            </div>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+              เพื่อความเป็นส่วนตัว ระบบจะแสดงเฉพาะรายการที่คุณเป็น <strong>คนโพสต์</strong> หรือ <strong>คนติดต่อทำรายการ</strong> เท่านั้น หากคุณเคยทำรายการไว้ กรุณาลงชื่อเข้าใช้หรือพิมพ์ชื่อ/เบอร์โทรของคุณในช่องตรวจสอบด้านบน
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const stepPercentMap = { 1: 25, 2: 50, 3: 75, 4: 100 };
+
+      container.innerHTML = filteredLogs.map(({ item, idx }) => {
+        const pct = item.isCancelled ? 0 : (stepPercentMap[item.progressStep] || 25);
+        const barColor = item.isCancelled ? 'bg-rose-600' : item.progressStep === 4 ? 'bg-emerald-600' : item.progressStep >= 2 ? 'bg-blue-600' : 'bg-amber-500';
+        const textColor = item.isCancelled ? 'text-rose-700' : item.progressStep === 4 ? 'text-emerald-700' : item.progressStep >= 2 ? 'text-blue-700' : 'text-amber-700';
+        const isDone100 = !item.isCancelled && (item.progressStep === 4 || String(item.statusText).includes('100%'));
+        const isAck = Boolean(item.isAcknowledged || acknowledgedProgressIds.has(String(item.itemId)));
+        const isMyPost = isLogOwnedByCurrentUser(item);
+        const isMyContact = isLogContactedByCurrentUser(item);
+        const isPosterAck = Boolean(item.isPosterAcknowledged || posterAcknowledgedIds.has(String(item.itemId)));
+        const isBookingOrTrade = item.type.includes('จองคิว') || item.type.includes('ซื้อ-ขาย');
+        const cleanCustTel = String(item.customerPhone || '').replace(/[^0-9+]/g, '');
+        const cleanPosterTel = String(item.posterPhone || '').replace(/[^0-9+]/g, '');
+
+        let roleRelationBadge = '';
+        if (isMyPost && isMyContact) {
+          roleRelationBadge = `<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-700 text-white">📣 คุณคือคนโพสต์ / ผู้ส่งคำขอ</span>`;
+        } else if (isMyPost) {
+          roleRelationBadge = `<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-600 text-white">📣 คุณคือคนโพสต์</span>`;
+        } else if (isMyContact) {
+          roleRelationBadge = `<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">🤝 คุณคือคนติดต่อ</span>`;
+        } else if (isAdmin) {
+          roleRelationBadge = `<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-amber-300">🛡️ คนโพสต์: ${escapeHtmlSafe(item.posterName)} ↔ คนติดต่อ: ${escapeHtmlSafe(item.customerName)}</span>`;
+        }
+
+        return `
+          <div class="bg-white rounded-2xl border ${item.isCancelled ? 'border-rose-300 bg-rose-50/20' : isMyPost && isBookingOrTrade ? 'border-sky-300 ring-1 ring-sky-200' : isMyContact ? 'border-indigo-200' : 'border-slate-200'} p-5 shadow-xs space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold px-3 py-1 rounded-full ${item.isCancelled ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+                  ${escapeHtmlSafe(item.type)}
+                </span>
+                ${roleRelationBadge}
+                <span class="text-xs font-mono text-slate-400">#${escapeHtmlSafe(item.itemId)}</span>
+                <h4 class="font-extrabold text-slate-900 text-base">${escapeHtmlSafe(item.itemName)}</h4>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400">🕒 ${escapeHtmlSafe(item.timestamp)}</span>
+                ${isAdmin ? `<button type="button" onclick="window.deleteProgressItem(${idx})" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold px-2.5 py-1 rounded-lg">🗑️ ลบ</button>` : ''}
+              </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-slate-700">
+              <div>📣 <strong>คนโพสต์:</strong> ${escapeHtmlSafe(item.posterName)} ${cleanPosterTel ? `(<a href="tel:${cleanPosterTel}" onclick="window.triggerPhoneCall('${cleanPosterTel}')" class="text-emerald-800 font-bold underline">${escapeHtmlSafe(item.posterPhone)}</a>)` : ''}</div>
+              <div>🤝 <strong>คนติดต่อ:</strong> ${escapeHtmlSafe(item.customerName)} ${cleanCustTel ? `(<a href="tel:${cleanCustTel}" onclick="window.triggerPhoneCall('${cleanCustTel}')" class="text-emerald-800 font-bold underline">${escapeHtmlSafe(item.customerPhone)}</a>)` : ''}</div>
+              <div>💰 <strong>รายละเอียดราคา/ปริมาณ:</strong> <span class="font-bold text-emerald-800">${escapeHtmlSafe(item.value)}</span></div>
+              <div>📝 <strong>หมายเหตุ/พิกัด:</strong> ${escapeHtmlSafe(item.note)}</div>
+            </div>
+
+            ${isMyPost && isBookingOrTrade && !item.isCancelled ? `
+              <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="text-xs text-sky-950 font-bold">
+                  🔔 แจ้งเตือนถึงคุณในฐานะคนโพสต์ (${escapeHtmlSafe(item.posterName)}): มีรายการ${escapeHtmlSafe(item.type)}เข้ามาในโพสต์ของคุณ
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <a href="tel:${cleanCustTel}" onclick="window.triggerPhoneCall('${cleanCustTel}')" class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold text-xs px-3 py-1.5 rounded-xl transition">
+                    📞 โทรหาคนติดต่อ
+                  </a>
+                  ${isPosterAck ? `
+                    <span class="bg-sky-700 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl">☑️ คนโพสต์รับทราบแล้ว</span>
+                  ` : `
+                    <button type="button" onclick="window.posterAcknowledgeProgressItem(${idx})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-xs transition">
+                      ✅ คนโพสต์รับทราบ
+                    </button>
+                  `}
+                </div>
+              </div>
+            ` : ''}
+
+            ${item.isCancelled ? `
+              <div class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-900 space-y-1">
+                <div class="font-extrabold">🚫 สถานะ: ยกเลิกรายการโดยแอดมินสหกรณ์</div>
+                <div><strong>เหตุผลที่ยกเลิก:</strong> ${escapeHtmlSafe(item.cancelReason || item.note)}</div>
+              </div>
+            ` : `
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs font-bold ${textColor}">
+                  <span>สถานะความคืบหน้า: ${escapeHtmlSafe(item.statusText)}</span>
+                  <span>${pct}%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full ${barColor} transition-all duration-300" style="width: ${pct}%;"></div>
+                </div>
+              </div>
+            `}
+
+            ${isDone100 ? `
+              <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="text-xs text-emerald-950 font-bold">
+                  🎉 การดำเนินการเสร็จสิ้นสมบูรณ์ 100% แล้ว ${isAck ? '(ยืนยันรับทราบเรียบร้อยแล้ว)' : 'กรุณากดปุ่มรับทราบเพื่อยืนยัน'}
+                </div>
+                ${isAck ? `
+                  <span class="bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">☑️ รับทราบเรียบร้อยแล้ว</span>
+                ` : `
+                  <button type="button" onclick="window.acknowledgeProgressItem(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition shrink-0">
+                    ✅ รับทราบ
+                  </button>
+                `}
+              </div>
+            ` : ''}
+
+            ${isAdmin ? `
+              <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-bold text-slate-600">อัปเดตสถานะ (แอดมิน):</span>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button type="button" onclick="window.adminUpdateProgressStep(${idx}, 1)" class="px-2.5 py-1.5 rounded-lg font-bold ${!item.isCancelled && item.progressStep === 1 ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-700 hover:bg-amber-100'}">25% รับเรื่อง</button>
+                  <button type="button" onclick="window.adminUpdateProgressStep(${idx}, 2)" class="px-2.5 py-1.5 rounded-lg font-bold ${!item.isCancelled && item.progressStep === 2 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-blue-100'}">50% ยืนยันคิว/ราคา</button>
+                  <button type="button" onclick="window.adminUpdateProgressStep(${idx}, 3)" class="px-2.5 py-1.5 rounded-lg font-bold ${!item.isCancelled && item.progressStep === 3 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-indigo-100'}">75% กำลังดำเนินการ</button>
+                  <button type="button" onclick="window.adminUpdateProgressStep(${idx}, 4)" class="px-2.5 py-1.5 rounded-lg font-bold ${!item.isCancelled && item.progressStep === 4 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-emerald-100'}">100% เสร็จสิ้น</button>
+                  <button type="button" onclick="window.openCancelProgressModal(${idx})" class="px-2.5 py-1.5 rounded-lg font-bold ${item.isCancelled ? 'bg-rose-600 text-white' : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-600 hover:text-white'}">
+                    🚫 ยกเลิกรายการ
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div class="pt-1 flex items-center justify-between text-[11px] text-slate-400">
+                <span>🔒 รายการนี้จัดการสถานะโดยแอดมินสหกรณ์ (แจ้งเตือนความคืบหน้าไปยังคนโพสต์อัตโนมัติ)</span>
+                <span class="text-emerald-700 font-bold">อัปเดตอัตโนมัติ</span>
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function adminUpdateProgressStep(idx, step) {
+      const item = activityLogs[idx];
+      if (!item) return;
+      const mapText = {
+        1: '25% รับเรื่อง/รอตรวจสอบ',
+        2: '50% ยืนยันคิว/ตกลงราคาแล้ว',
+        3: '75% กำลังดำเนินการ/ขนส่ง',
+        4: '100% เสร็จสิ้นสมบูรณ์'
+      };
+      item.isCancelled = false;
+      item.progressStep = step;
+      item.statusText = mapText[step] || mapText[1];
+      renderProgressReport();
+
+      syncPayloadToGSheet({
+        action: 'updateProgress',
+        itemId: item.itemId,
+        statusText: item.statusText
+      });
+      showToast(`✅ อัปเดตสถานะเป็น "${item.statusText}" เรียบร้อยแล้ว`);
+    }
+    window.adminUpdateProgressStep = adminUpdateProgressStep;
+
+    function acknowledgeProgressItem(idx) {
+      const item = activityLogs[idx];
+      if (!item) return;
+      item.isAcknowledged = true;
+      item.statusText = '100% เสร็จสิ้นสมบูรณ์ (รับทราบแล้ว)';
+      acknowledgedProgressIds.add(String(item.itemId));
+      saveAcknowledgedIds();
+      renderProgressReport();
+
+      syncPayloadToGSheet({
+        action: 'acknowledgeProgress',
+        timestamp: new Date().toLocaleString('th-TH'),
+        itemId: item.itemId,
+        itemName: item.itemName,
+        customerName: item.customerName,
+        customerPhone: item.customerPhone,
+        value: item.value,
+        ackStatusText: '100% เสร็จสิ้นสมบูรณ์ (รับทราบแล้ว)'
+      });
+      showToast('☑️ ยืนยันรับทราบความคืบหน้า 100% เรียบร้อยแล้ว!');
+    }
+    window.acknowledgeProgressItem = acknowledgeProgressItem;
+
+    function posterAcknowledgeProgressItem(idx) {
+      const item = activityLogs[idx];
+      if (!item) return;
+      item.isPosterAcknowledged = true;
+      posterAcknowledgedIds.add(String(item.itemId));
+      savePosterAcknowledgedIds();
+      renderProgressReport();
+
+      syncPayloadToGSheet({
+        action: 'acknowledgeProgress',
+        timestamp: new Date().toLocaleString('th-TH'),
+        itemId: item.itemId,
+        itemName: item.itemName,
+        customerName: item.customerName,
+        customerPhone: item.customerPhone,
+        value: item.value,
+        ackType: 'คนโพสต์รับทราบรายการ',
+        ackStatusText: `${item.statusText} (คนโพสต์รับทราบแล้ว)`,
+        ackNote: `คนโพสต์ (${item.posterName}) กดยืนยันรับทราบรายการแล้ว`
+      });
+      showToast('☑️ คนโพสต์ยืนยันรับทราบรายการจองคิว/ซื้อ-ขายเรียบร้อยแล้ว!');
+    }
+    window.posterAcknowledgeProgressItem = posterAcknowledgeProgressItem;
+
+    function openCancelProgressModal(idx) {
+      const item = activityLogs[idx];
+      if (!item) return;
+      document.getElementById('cancel-prog-index').value = idx;
+      document.getElementById('cancel-reason-input').value = '';
+      document.getElementById('cancel-prog-summary').innerHTML = `
+        <strong>รายการ:</strong> ${escapeHtmlSafe(item.itemName)}<br>
+        <strong>ผู้ทำรายการ:</strong> ${escapeHtmlSafe(item.customerName)} (${escapeHtmlSafe(item.customerPhone)})
+      `;
+      document.getElementById('cancel-progress-modal').classList.add('open');
+    }
+    window.openCancelProgressModal = openCancelProgressModal;
+
+    function closeCancelProgressModal() {
+      document.getElementById('cancel-progress-modal').classList.remove('open');
+    }
+    window.closeCancelProgressModal = closeCancelProgressModal;
+
+    function handleCancelProgressSubmit(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById('cancel-prog-index').value, 10);
+      const item = activityLogs[idx];
+      if (!item) return;
+      const reason = document.getElementById('cancel-reason-input').value.trim();
+
+      item.isCancelled = true;
+      item.progressStep = 0;
+      item.statusText = 'ยกเลิกรายการ';
+      item.cancelReason = reason;
+      item.note = `${item.note} | เหตุผลที่ยกเลิก: ${reason}`;
+
+      closeCancelProgressModal();
+      renderProgressReport();
+
+      syncPayloadToGSheet({
+        action: 'cancelProgress',
+        timestamp: new Date().toLocaleString('th-TH'),
+        itemId: item.itemId,
+        itemName: item.itemName,
+        customerName: item.customerName,
+        customerPhone: item.customerPhone,
+        value: item.value,
+        cancelReason: reason,
+        note: item.note
+      });
+      showToast('🚫 บันทึกการยกเลิกรายการพร้อมเหตุผลเรียบร้อยแล้ว');
+    }
+    window.handleCancelProgressSubmit = handleCancelProgressSubmit;
+
+    function deleteProgressItem(idx) {
+      const item = activityLogs[idx];
+      if (!item) return;
+      activityLogs.splice(idx, 1);
+      renderProgressReport();
+      syncPayloadToGSheet({ action: 'deleteRow', sheetName: 'ความคืบหน้า', itemId: item.itemId });
+      showToast('🗑️ ลบรายการความคืบหน้าออกจากระบบแล้ว');
+    }
+    window.deleteProgressItem = deleteProgressItem;
+
+    // Live Alert Popups
+    function triggerAdminLiveAlert(title, bodyText, timeText) {
+      const box = document.getElementById('admin-live-alert');
+      const body = document.getElementById('admin-live-alert-body');
+      if (!box || !body) return;
+      body.innerHTML = `
+        <div class="font-bold text-amber-300">${escapeHtmlSafe(title)}</div>
+        <div>${escapeHtmlSafe(bodyText)}</div>
+        <div class="text-[11px] text-slate-400">🕒 ${escapeHtmlSafe(timeText)}</div>
+      `;
+      box.classList.remove('hidden');
+    }
+    function dismissAdminAlert() {
+      document.getElementById('admin-live-alert')?.classList.add('hidden');
+    }
+    window.dismissAdminAlert = dismissAdminAlert;
+
+    function goToAdminProgressFromAlert() {
+      dismissAdminAlert();
+      setRole('progress');
+    }
+    window.goToAdminProgressFromAlert = goToAdminProgressFromAlert;
+
+    function triggerPosterLiveAlert(logItem) {
+      const box = document.getElementById('poster-live-alert');
+      const body = document.getElementById('poster-live-alert-body');
+      if (!box || !body || !logItem) return;
+      body.innerHTML = `
+        <div class="font-bold text-sky-300">${escapeHtmlSafe(logItem.type)}: ${escapeHtmlSafe(logItem.itemName)}</div>
+        <div>👤 ผู้ทำรายการ: <strong>${escapeHtmlSafe(logItem.customerName)}</strong> (${escapeHtmlSafe(logItem.customerPhone)})</div>
+        <div>💰 รายละเอียด: ${escapeHtmlSafe(logItem.value)}</div>
+        <div class="text-[11px] text-emerald-300">🕒 ${escapeHtmlSafe(logItem.timestamp)}</div>
+      `;
+      box.classList.remove('hidden');
+    }
+    function dismissPosterAlert() {
+      document.getElementById('poster-live-alert')?.classList.add('hidden');
+    }
+    window.dismissPosterAlert = dismissPosterAlert;
+
+    function goToPosterProgressFromAlert() {
+      dismissPosterAlert();
+      setRole('progress');
+      setProgressFilter('my_posts');
+    }
+    window.goToPosterProgressFromAlert = goToPosterProgressFromAlert;
+
+    // =====================================================================
+    // 8. ระบบลงชื่อเข้าใช้ / สมัครสมาชิก / ลืมรหัสผ่าน
+    // =====================================================================
+    function toggleAuthModal(show, tab = 'login') {
+      const modal = document.getElementById('auth-modal');
+      if (!modal) return;
+      if (show) {
+        switchAuthTab(tab);
+        modal.classList.add('open');
+      } else {
+        modal.classList.remove('open');
+      }
+    }
+    window.toggleAuthModal = toggleAuthModal;
+
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      const forgotForm = document.getElementById('forgot-form');
+      const tabLogin = document.getElementById('auth-tab-login');
+      const tabReg = document.getElementById('auth-tab-register');
+
+      loginForm?.classList.add('hidden');
+      regForm?.classList.add('hidden');
+      forgotForm?.classList.add('hidden');
+
+      if (tab === 'register') {
+        regForm?.classList.remove('hidden');
+        if (tabReg) tabReg.className = 'bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition';
+        if (tabLogin) tabLogin.className = 'text-slate-700 text-xs font-bold py-2 rounded-lg transition';
+      } else if (tab === 'forgot') {
+        forgotForm?.classList.remove('hidden');
+      } else {
+        loginForm?.classList.remove('hidden');
+        if (tabLogin) tabLogin.className = 'bg-emerald-700 text-white text-xs font-bold py-2 rounded-lg transition';
+        if (tabReg) tabReg.className = 'text-slate-700 text-xs font-bold py-2 rounded-lg transition';
+      }
+    }
+    window.switchAuthTab = switchAuthTab;
+
+    function renderAuthHeader() {
+      const box = document.getElementById('auth-header-box');
+      const floatLabel = document.getElementById('floating-chat-label');
+      if (!box) return;
+
+      if (currentUser) {
+        const badgeClass = currentUser.isAdmin ? 'bg-amber-400 text-slate-950' : 'bg-emerald-100 text-emerald-900';
+        const icon = currentUser.isAdmin ? '🛡️' : '👤';
+        box.innerHTML = `
+          <span class="${badgeClass} text-xs font-extrabold px-3 py-1.5 rounded-full inline-flex items-center gap-1">
+            <span>${icon}</span>
+            <span class="max-w-[130px] truncate">${escapeHtmlSafe(currentUser.username)}</span>
+          </span>
+          <button type="button" onclick="window.logoutUser()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-2.5 py-1.5 rounded-full transition">ออก</button>
+        `;
+        if (floatLabel) {
+          floatLabel.innerText = currentUser.isAdmin ? 'กล่องข้อความแอดมิน' : 'แชทติดต่อแอดมิน';
+        }
+      } else {
+        box.innerHTML = `
+          <button type="button" onclick="window.toggleAuthModal(true, 'login')" class="bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xs transition inline-flex items-center gap-1.5">
+            <span>🔐</span>
+            <span>ลงชื่อเข้าใช้</span>
+          </button>
+        `;
+        if (floatLabel) floatLabel.innerText = 'แชทติดต่อแอดมิน';
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const uname = document.getElementById('login-username').value.trim();
+      const pwd = document.getElementById('login-password').value.trim();
+
+      const matchedAdmin = adminAccounts.find(a => a.username === uname && a.password === pwd);
+      if ((uname === 'allinone1111++==' && pwd === 'G1987889') || matchedAdmin) {
+        currentUser = {
+          username: uname,
+          fullName: matchedAdmin ? matchedAdmin.fullName : 'แอดมินสหกรณ์',
+          phone: '062-418-1699',
+          isAdmin: true
+        };
+        isAdminMode = true;
+        safeStorage.set('allinone_current_user', JSON.stringify(currentUser));
+        toggleAuthModal(false);
+        renderAuthHeader();
+        refreshAllViews();
+        showToast('🛡️ เข้าสู่ระบบผู้ดูแลระบบ (แอดมิน) สำเร็จ!');
+        return;
+      }
+
+      const localUsers = JSON.parse(safeStorage.get('allinone_local_users') || '[]');
+      const allUsers = [...registeredUsers, ...localUsers];
+      const foundUser = allUsers.find(u => u.username === uname && u.password === pwd);
+
+      if (foundUser) {
+        currentUser = {
+          username: foundUser.username,
+          phone: foundUser.phone,
+          gmail: foundUser.gmail,
+          role: foundUser.role,
+          isAdmin: false
+        };
+        isAdminMode = false;
+        safeStorage.set('allinone_current_user', JSON.stringify(currentUser));
+        toggleAuthModal(false);
+        renderAuthHeader();
+        refreshAllViews();
+        showToast(`✅ ยินดีต้อนรับคุณ ${foundUser.username}`);
+      } else {
+        showToast('❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
+      }
+    }
+    window.handleLoginSubmit = handleLoginSubmit;
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const uname = document.getElementById('reg-username').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const gmail = document.getElementById('reg-gmail').value.trim();
+      const role = document.getElementById('reg-role').value;
+      const pwd = document.getElementById('reg-password').value.trim();
+
+      if (!gmail.toLowerCase().endsWith('@gmail.com')) {
+        showToast('⚠️ กรุณากรอกอีเมลที่เป็น @gmail.com เท่านั้น');
+        return;
+      }
+
+      const newUserObj = { username: uname, phone: phone, gmail: gmail, role: role, password: pwd };
+      const localUsers = JSON.parse(safeStorage.get('allinone_local_users') || '[]');
+      localUsers.push(newUserObj);
+      safeStorage.set('allinone_local_users', JSON.stringify(localUsers));
+      registeredUsers.push(newUserObj);
+
+      currentUser = { username: uname, phone: phone, gmail: gmail, role: role, isAdmin: false };
+      isAdminMode = false;
+      safeStorage.set('allinone_current_user', JSON.stringify(currentUser));
+
+      toggleAuthModal(false);
+      renderAuthHeader();
+      refreshAllViews();
+
+      syncPayloadToGSheet({
+        action: 'registerUser',
+        timestamp: new Date().toLocaleString('th-TH'),
+        customerName: uname,
+        customerPhone: phone,
+        gmail: gmail,
+        role: role,
+        password: pwd
+      });
+      showToast(`✅ สมัครสมาชิกสำเร็จ! ยินดีต้อนรับคุณ ${uname}`);
+    }
+    window.handleRegisterSubmit = handleRegisterSubmit;
+
+    function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const uname = document.getElementById('forgot-username').value.trim();
+      const phone = document.getElementById('forgot-phone').value.trim();
+      const gmail = document.getElementById('forgot-gmail').value.trim().toLowerCase();
+      const newPwd = document.getElementById('forgot-new-password').value.trim();
+
+      const localUsers = JSON.parse(safeStorage.get('allinone_local_users') || '[]');
+      const allUsers = [...registeredUsers, ...localUsers];
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+
+      const matched = allUsers.find(u =>
+        u.username === uname &&
+        String(u.phone || '').replace(/[^0-9]/g, '') === cleanPhone &&
+        String(u.gmail || '').toLowerCase() === gmail
+      );
+
+      if (!matched) {
+        showToast('⚠️ ข้อมูลชื่อผู้ใช้ เบอร์โทร หรือ Gmail ไม่ตรงกับที่สมัครไว้');
+        return;
+      }
+
+      matched.password = newPwd;
+      localUsers.forEach(u => { if (u.username === uname) u.password = newPwd; });
+      safeStorage.set('allinone_local_users', JSON.stringify(localUsers));
+
+      syncPayloadToGSheet({
+        action: 'resetPassword',
+        timestamp: new Date().toLocaleString('th-TH'),
+        customerName: uname,
+        customerPhone: phone,
+        gmail: gmail,
+        newPassword: newPwd
+      });
+
+      switchAuthTab('login');
+      showToast('✅ ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+    }
+    window.handleForgotPasswordSubmit = handleForgotPasswordSubmit;
+
+    function logoutUser() {
+      currentUser = null;
+      isAdminMode = false;
+      safeStorage.remove('allinone_current_user');
+      renderAuthHeader();
+      refreshAllViews();
+      showToast('ออกจากระบบเรียบร้อยแล้ว');
+    }
+    window.logoutUser = logoutUser;
+
+    // =====================================================================
+    // 9. ระบบแชทครบวงจร (คนซื้อ-คนขาย / ผู้ว่าจ้าง-ผู้ให้บริการ / แอดมิน)
+    // =====================================================================
+    function updateChatUnreadBadges() {
+      const mktBadge = document.getElementById('market-hub-badge');
+      const svcBadge = document.getElementById('service-hub-badge');
+      const floatBadge = document.getElementById('floating-chat-badge');
+
+      const mktCount = chatMessages.filter(c => c.roomId.startsWith('MKT_') && c.readStatus !== 'อ่านแล้ว').length;
+      const svcCount = chatMessages.filter(c => c.roomId.startsWith('SVC_') && c.readStatus !== 'อ่านแล้ว').length;
+      const admCount = checkIsAdmin()
+        ? chatMessages.filter(c => c.readStatus !== 'อ่านแล้ว' && c.senderRole !== 'แอดมิน').length
+        : chatMessages.filter(c => c.roomId === ('ADM_' + guestChatSessionId) && c.readStatus !== 'อ่านแล้ว' && c.senderRole === 'แอดมิน').length;
+
+      if (mktBadge) {
+        mktCount > 0 ? (mktBadge.innerText = mktCount, mktBadge.classList.remove('hidden')) : mktBadge.classList.add('hidden');
+      }
+      if (svcBadge) {
+        svcCount > 0 ? (svcBadge.innerText = svcCount, svcBadge.classList.remove('hidden')) : svcBadge.classList.add('hidden');
+      }
+      if (floatBadge) {
+        admCount > 0 ? (floatBadge.innerText = admCount, floatBadge.classList.remove('hidden')) : floatBadge.classList.add('hidden');
+      }
+    }
+
+    function openItemChatModal(mode, idx) {
+      const roleBar = document.getElementById('chat-role-bar');
+      const btn1 = document.getElementById('chat-role-btn-1');
+      const btn2 = document.getElementById('chat-role-btn-2');
+      const chipsEl = document.getElementById('chat-quick-chips');
+      const nameInput = document.getElementById('chat-sender-name-input');
+
+      clearChatReply();
+      if (nameInput) nameInput.value = currentUser ? currentUser.username : guestChatName;
+
+      if (mode === 'market') {
+        const item = marketListings[idx];
+        if (!item) return;
+        activeChatRoomId = 'MKT_' + item.id;
+        activeChatType = 'แชทซื้อ-ขายผลผลิต';
+        activeChatTopic = `${item.crop} (${item.tons} ตัน) - ผู้ขาย: ${item.seller}`;
+
+        document.getElementById('chat-room-badge').innerText = '🛒 แชทระหว่างคนซื้อกับคนขาย';
+        document.getElementById('chat-room-title').innerText = `${item.crop} (${item.tons} ตัน)`;
+        document.getElementById('chat-room-sub').innerText = `ผู้ขาย: ${item.seller} | โทร. ${item.phone}`;
+
+        roleBar?.classList.remove('hidden');
+        if (btn1) btn1.innerText = '🛒 คนซื้อ';
+        if (btn2) btn2.innerText = '🌾 คนขาย';
+        setChatSenderRole(1);
+
+        if (chipsEl) {
+          chipsEl.innerHTML = ['ขอทราบรายละเอียดเพิ่มเติมครับ', 'พร้อมรับสินค้าหน้าลานครับ', 'ขอต่อรองราคาตามเกณฑ์สหกรณ์', 'ตกลงซื้อขายตามราคานี้ครับ'].map(txt =>
+            `<button type="button" onclick="window.fillQuickChat('${txt}')" class="bg-slate-100 hover:bg-emerald-100 text-slate-700 px-2.5 py-1 rounded-full shrink-0 font-bold">${txt}</button>`
+          ).join('');
+        }
+      } else if (mode === 'service') {
+        const svc = laborProviders[idx];
+        if (!svc) return;
+        activeChatRoomId = 'SVC_' + svc.id;
+        activeChatType = 'แชทบริการเกษตร';
+        activeChatTopic = `${svc.name} - ผู้ให้บริการ: ${svc.owner}`;
+
+        document.getElementById('chat-room-badge').innerText = '🚜 แชทบริการทางการเกษตร';
+        document.getElementById('chat-room-title').innerText = svc.name;
+        document.getElementById('chat-room-sub').innerText = `ผู้ดูแล: ${svc.owner} | โทร. ${svc.phone}`;
+
+        roleBar?.classList.remove('hidden');
+        if (btn1) btn1.innerText = '👩‍🌾 ผู้ว่าจ้าง';
+        if (btn2) btn2.innerText = '🚜 ผู้ให้บริการ';
+        setChatSenderRole(1);
+
+        if (chipsEl) {
+          chipsEl.innerHTML = ['สอบถามคิวว่างครับ', 'แปลงอยู่ที่ ต.นาตาล ครับ', 'คิดค่าบริการอย่างไรครับ', 'ยืนยันนัดหมายตามวันจองครับ'].map(txt =>
+            `<button type="button" onclick="window.fillQuickChat('${txt}')" class="bg-slate-100 hover:bg-emerald-100 text-slate-700 px-2.5 py-1 rounded-full shrink-0 font-bold">${txt}</button>`
+          ).join('');
+        }
+      }
+
+      markRoomAsRead(activeChatRoomId);
+      renderActiveChatMessages();
+      document.getElementById('item-chat-modal').classList.add('open');
+    }
+    window.openItemChatModal = openItemChatModal;
+
+    function openFloatingAdminChat() {
+      if (checkIsAdmin()) {
+        openChatHubModal('admin');
+        return;
+      }
+      const roomId = 'ADM_' + (currentUser ? currentUser.username : guestChatSessionId);
+      openDirectChatRoom(
+        roomId,
+        'แชทติดต่อแอดมิน',
+        `ติดต่อแอดมินสหกรณ์ (${currentUser ? currentUser.username : guestChatSessionId})`
+      );
+    }
+    window.openFloatingAdminChat = openFloatingAdminChat;
+
+    function openDirectChatRoom(roomId, chatType, topic) {
+      activeChatRoomId = roomId;
+      activeChatType = chatType;
+      activeChatTopic = topic;
+      clearChatReply();
+
+      const roleBar = document.getElementById('chat-role-bar');
+      const chipsEl = document.getElementById('chat-quick-chips');
+      const nameInput = document.getElementById('chat-sender-name-input');
+      if (nameInput) nameInput.value = currentUser ? currentUser.username : guestChatName;
+
+      document.getElementById('chat-room-badge').innerText = chatType;
+      document.getElementById('chat-room-title').innerText = topic;
+      document.getElementById('chat-room-sub').innerText = 'ศูนย์ประสานงานสหกรณ์ อ.นาตาล (นายพิเชษฐ์ชัย ประสมพลอย 062-418-1699)';
+
+      if (checkIsAdmin()) {
+        roleBar?.classList.add('hidden');
+        if (chipsEl) {
+          chipsEl.innerHTML = ['สวัสดีครับ แอดมินสหกรณ์ยินดีให้บริการครับ', 'แอดมินตรวจสอบและอนุมัติรายการให้แล้วครับ', 'รับทราบข้อมูลเรียบร้อยครับ'].map(txt =>
+            `<button type="button" onclick="window.fillQuickChat('${txt}')" class="bg-slate-100 hover:bg-emerald-100 text-slate-700 px-2.5 py-1 rounded-full shrink-0 font-bold">${txt}</button>`
+          ).join('');
+        }
+      } else if (roomId.startsWith('ADM_')) {
+        roleBar?.classList.remove('hidden');
+        document.getElementById('chat-role-btn-1').innerText = '👩‍🌾 สมาชิก/เกษตรกร';
+        document.getElementById('chat-role-btn-2').innerText = '🏪 ผู้ซื้อ/ผู้รับจ้าง';
+        setChatSenderRole(1);
+        if (chipsEl) {
+          chipsEl.innerHTML = ['สอบถามการอนุมัติโพสต์ครับ', 'ขอแจ้งแก้ไขข้อมูลประกาศครับ', 'ติดต่อสอบถามเรื่องราคาสหกรณ์ครับ'].map(txt =>
+            `<button type="button" onclick="window.fillQuickChat('${txt}')" class="bg-slate-100 hover:bg-emerald-100 text-slate-700 px-2.5 py-1 rounded-full shrink-0 font-bold">${txt}</button>`
+          ).join('');
+        }
+      } else {
+        roleBar?.classList.remove('hidden');
+        document.getElementById('chat-role-btn-1').innerText = roomId.startsWith('SVC_') ? '👩‍🌾 ผู้ว่าจ้าง' : '🛒 คนซื้อ';
+        document.getElementById('chat-role-btn-2').innerText = roomId.startsWith('SVC_') ? '🚜 ผู้ให้บริการ' : '🌾 คนขาย';
+        setChatSenderRole(1);
+      }
+
+      markRoomAsRead(roomId);
+      renderActiveChatMessages();
+      document.getElementById('item-chat-modal').classList.add('open');
+    }
+    window.openDirectChatRoom = openDirectChatRoom;
+
+    function closeItemChatModal() {
+      document.getElementById('item-chat-modal').classList.remove('open');
+      activeChatRoomId = '';
+    }
+    window.closeItemChatModal = closeItemChatModal;
+
+    function setChatSenderRole(idx) {
+      activeChatSenderRoleIndex = idx;
+      const btn1 = document.getElementById('chat-role-btn-1');
+      const btn2 = document.getElementById('chat-role-btn-2');
+      if (btn1 && btn2) {
+        btn1.className = idx === 1 ? 'bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg' : 'bg-white text-slate-700 border border-slate-300 font-bold px-2.5 py-1 rounded-lg';
+        btn2.className = idx === 2 ? 'bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-lg' : 'bg-white text-slate-700 border border-slate-300 font-bold px-2.5 py-1 rounded-lg';
+      }
+    }
+    window.setChatSenderRole = setChatSenderRole;
+
+    function fillQuickChat(txt) {
+      const inp = document.getElementById('chat-message-input');
+      if (inp) {
+        inp.value = txt;
+        inp.focus();
+      }
+    }
+    window.fillQuickChat = fillQuickChat;
+
+    function setChatReply(sender, text) {
+      activeChatReplyText = `${sender}: ${text}`;
+      document.getElementById('chat-reply-text').innerText = activeChatReplyText;
+      document.getElementById('chat-reply-preview').classList.remove('hidden');
+      document.getElementById('chat-message-input').focus();
+    }
+    window.setChatReply = setChatReply;
+
+    function clearChatReply() {
+      activeChatReplyText = '';
+      document.getElementById('chat-reply-preview')?.classList.add('hidden');
+    }
+    window.clearChatReply = clearChatReply;
+
+    function markRoomAsRead(roomId) {
+      const readerRole = checkIsAdmin() ? 'แอดมิน' : '';
+      let changed = false;
+      chatMessages.forEach(c => {
+        if (c.roomId === roomId && c.readStatus !== 'อ่านแล้ว' && (!readerRole || c.senderRole !== readerRole)) {
+          c.readStatus = 'อ่านแล้ว';
+          changed = true;
+        }
+      });
+      if (changed) {
+        updateChatUnreadBadges();
+        syncPayloadToGSheet({ action: 'markChatRead', roomId: roomId, readerRole: readerRole });
+      }
+    }
+
+    function renderActiveChatMessages() {
+      const box = document.getElementById('chat-messages-container');
+      if (!box) return;
+      const roomMsgs = chatMessages.filter(c => c.roomId === activeChatRoomId);
+
+      if (roomMsgs.length === 0) {
+        box.innerHTML = `<div class="text-center text-xs text-slate-400 py-10">ยังไม่มีข้อความในห้องสนทนานี้ เริ่มพิมพ์ข้อความด้านล่างได้เลยครับ</div>`;
+        return;
+      }
+
+      box.innerHTML = roomMsgs.map(m => {
+        const isAdminMsg = m.senderRole === 'แอดมิน';
+        const isRight = checkIsAdmin() ? isAdminMsg : (!isAdminMsg && (m.senderRole.includes('คนซื้อ') || m.senderRole.includes('ผู้ว่าจ้าง') || m.senderRole.includes('สมาชิก')));
+
+        return `
+          <div class="flex flex-col ${isRight ? 'items-end' : 'items-start'}">
+            <div class="text-[10px] text-slate-500 mb-0.5 px-1">
+              <strong>${escapeHtmlSafe(m.senderName)}</strong> (${escapeHtmlSafe(m.senderRole)}) • ${escapeHtmlSafe(m.timestamp)}
+            </div>
+            <div class="max-w-[82%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm shadow-xs ${isAdminMsg ? 'bg-amber-100 text-amber-950 border border-amber-300' : isRight ? 'bg-emerald-700 text-white' : 'bg-white text-slate-800 border border-slate-200'}">
+              ${escapeHtmlSafe(m.message)}
+            </div>
+            <div class="flex items-center gap-2 mt-0.5 px-1 text-[10px] text-slate-400">
+              <span>${escapeHtmlSafe(m.readStatus)}</span>
+              <button type="button" onclick="window.setChatReply('${escapeHtmlSafe(m.senderName).replace(/'/g, '')}', '${escapeHtmlSafe(m.message).replace(/'/g, '')}')" class="text-emerald-700 font-bold hover:underline">↩️ ตอบกลับ</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function handleSendChatSubmit(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('chat-message-input');
+      const rawMsg = inputEl.value.trim();
+      if (!rawMsg || !activeChatRoomId) return;
+
+      const nameVal = document.getElementById('chat-sender-name-input')?.value.trim();
+      if (nameVal && !checkIsAdmin()) {
+        guestChatName = nameVal;
+        safeStorage.set('allinone_guest_name', guestChatName);
+      }
+
+      let senderName = checkIsAdmin()
+        ? 'แอดมินสหกรณ์ (นายพิเชษฐ์ชัย)'
+        : (nameVal || (currentUser ? currentUser.username : 'ผู้ใช้งานสหกรณ์'));
+
+      let senderRole = 'ผู้ใช้งาน';
+      if (checkIsAdmin()) {
+        senderRole = 'แอดมิน';
+      } else if (activeChatRoomId.startsWith('MKT_')) {
+        senderRole = activeChatSenderRoleIndex === 1 ? 'คนซื้อ' : 'คนขาย';
+      } else if (activeChatRoomId.startsWith('SVC_')) {
+        senderRole = activeChatSenderRoleIndex === 1 ? 'ผู้ว่าจ้าง' : 'ผู้ให้บริการ';
+      } else {
+        senderRole = activeChatSenderRoleIndex === 1 ? 'สมาชิก/เกษตรกร' : 'ผู้ซื้อ/ผู้รับจ้าง';
+      }
+
+      const finalMsg = activeChatReplyText ? `[ตอบกลับ: ${activeChatReplyText}] ${rawMsg}` : rawMsg;
+      const nowStr = new Date().toLocaleString('th-TH');
+      const chatId = 'MSG-' + Date.now().toString().slice(-5);
+
+      chatMessages.push({
+        chatId: chatId,
+        timestamp: nowStr,
+        roomId: activeChatRoomId,
+        chatType: activeChatType,
+        topic: activeChatTopic,
+        senderName: senderName,
+        senderRole: senderRole,
+        message: finalMsg,
+        readStatus: 'ส่งแล้ว'
+      });
+      knownChatIds.add(chatId);
+
+      inputEl.value = '';
+      clearChatReply();
+      renderActiveChatMessages();
+      updateChatUnreadBadges();
+
+      syncPayloadToGSheet({
+        action: 'sendChat',
+        chatId: chatId,
+        timestamp: nowStr,
+        roomId: activeChatRoomId,
+        chatType: activeChatType,
+        topic: activeChatTopic,
+        senderName: senderName,
+        senderRole: senderRole,
+        message: finalMsg
+      });
+    }
+    window.handleSendChatSubmit = handleSendChatSubmit;
+
+    // กล่องรวมแชท (Chat Hub)
+    function openChatHubModal(mode) {
+      activeChatHubMode = mode;
+      activeChatHubSubFilter = 'all';
+      const tabsEl = document.getElementById('chat-hub-tabs');
+      const titleEl = document.getElementById('chat-hub-title');
+
+      if (mode === 'admin') {
+        titleEl.innerText = '🛡️ กล่องข้อความรวมของแอดมินสหกรณ์';
+        tabsEl.innerHTML = `
+          <button type="button" onclick="window.setChatHubSubFilter('all')" class="hub-sub-btn bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-full">ทั้งหมด</button>
+          <button type="button" onclick="window.setChatHubSubFilter('ADM_')" class="hub-sub-btn bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">💬 ติดต่อแอดมิน</button>
+          <button type="button" onclick="window.setChatHubSubFilter('MKT_')" class="hub-sub-btn bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">🛒 ซื้อ-ขายผลผลิต</button>
+          <button type="button" onclick="window.setChatHubSubFilter('SVC_')" class="hub-sub-btn bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full">🚜 บริการเกษตร</button>
+        `;
+      } else if (mode === 'service') {
+        titleEl.innerText = '📬 กล่องรวมแชทบริการทางการเกษตร';
+        tabsEl.innerHTML = '';
+      } else {
+        titleEl.innerText = '📬 กล่องรวมแชทซื้อ-ขายผลผลิต';
+        tabsEl.innerHTML = '';
+      }
+
+      renderChatHubList();
+      document.getElementById('chat-hub-modal').classList.add('open');
+    }
+    window.openChatHubModal = openChatHubModal;
+
+    function closeChatHubModal() {
+      document.getElementById('chat-hub-modal').classList.remove('open');
+    }
+    window.closeChatHubModal = closeChatHubModal;
+
+    function setChatHubSubFilter(prefix) {
+      activeChatHubSubFilter = prefix;
+      renderChatHubList();
+    }
+    window.setChatHubSubFilter = setChatHubSubFilter;
+
+    function renderChatHubList() {
+      const listEl = document.getElementById('chat-hub-list');
+      if (!listEl) return;
+
+      const roomsMap = new Map();
+      chatMessages.forEach(c => {
+        if (activeChatHubMode === 'market' && !c.roomId.startsWith('MKT_')) return;
+        if (activeChatHubMode === 'service' && !c.roomId.startsWith('SVC_')) return;
+        if (activeChatHubMode === 'admin' && activeChatHubSubFilter !== 'all' && !c.roomId.startsWith(activeChatHubSubFilter)) return;
+        roomsMap.set(c.roomId, c);
+      });
+
+      const rooms = Array.from(roomsMap.values()).reverse();
+      if (rooms.length === 0) {
+        listEl.innerHTML = `<div class="text-center text-xs text-slate-400 py-8">ยังไม่มีรายการสนทนาในหมวดนี้</div>`;
+        return;
+      }
+
+      const isAdmin = checkIsAdmin();
+      listEl.innerHTML = rooms.map(lastMsg => {
+        const unread = chatMessages.filter(m => m.roomId === lastMsg.roomId && m.readStatus !== 'อ่านแล้ว').length;
+        return `
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${escapeHtmlSafe(lastMsg.chatType)}</span>
+                <strong class="text-slate-900">${escapeHtmlSafe(lastMsg.topic)}</strong>
+                ${unread > 0 ? `<span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">ใหม่ ${unread}</span>` : ''}
+              </div>
+              <div class="text-slate-600 truncate max-w-md">💬 ${escapeHtmlSafe(lastMsg.senderName)}: "${escapeHtmlSafe(lastMsg.message)}"</div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="window.closeChatHubModal(); window.openDirectChatRoom('${escapeHtmlSafe(lastMsg.roomId)}', '${escapeHtmlSafe(lastMsg.chatType)}', '${escapeHtmlSafe(lastMsg.topic)}')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-3.5 py-2 rounded-xl">
+                💬 เปิดแชท / ตอบกลับ
+              </button>
+              ${isAdmin ? `<button type="button" onclick="window.adminDeleteChatRoom('${escapeHtmlSafe(lastMsg.roomId)}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold px-2.5 py-2 rounded-xl">🗑️</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function adminDeleteChatRoom(roomId) {
+      chatMessages = chatMessages.filter(c => c.roomId !== roomId);
+      renderChatHubList();
+      updateChatUnreadBadges();
+      syncPayloadToGSheet({ action: 'deleteChatRoom', roomId: roomId });
+      showToast('🗑️ ลบห้องสนทนาเรียบร้อยแล้ว');
+    }
+    window.adminDeleteChatRoom = adminDeleteChatRoom;
+
+    // ปิด Modal เมื่อคลิกพื้นหลังสีดำ
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('open');
+      }
+    });
+
+    // =====================================================================
+    // 10. เริ่มต้นระบบทันที & อัปเดตอัตโนมัติทุกๆ 5 วินาที
+    // =====================================================================
+    function initApp() {
+      try {
+        const savedUser = safeStorage.get('allinone_current_user');
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          isAdminMode = Boolean(currentUser && currentUser.isAdmin);
+        }
+      } catch (e) {}
+
+      renderAuthHeader();
+      refreshAllViews();
+      fetchAllDataFromSheet();
+
+      if (window._autoSyncInterval) clearInterval(window._autoSyncInterval);
+      window._autoSyncInterval = setInterval(fetchAllDataFromSheet, 5000);
+    }
+
+    initApp();
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
